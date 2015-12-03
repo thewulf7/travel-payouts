@@ -1,0 +1,20 @@
+{
+    "name": "thewulf7/travel-payouts",
+    "description": "PHP SDK for travelpayouts.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Johnny Utkin",
+            "email": "thewulf7@me.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "travelPayouts": "src/"
+        }
+    }
+}
