@@ -1,3 +1,11 @@
 # Travel Payouts PHP SDK
 
-travelpayouts.com
+### Usage example
+
+```php
+$travel = new Travel('YOUR TOKEN HERE');
+
+$ticketsService = $travel->getTicketsService();
+
+$routes = $ticketsService->getPopularRoutesFromCity('LAX');
+```
