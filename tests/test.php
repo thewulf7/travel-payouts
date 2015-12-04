@@ -4,4 +4,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use travelPayouts\Travel;
 
-echo Travel::hello();
+date_default_timezone_set('UTC');
+
+$class = new Travel('');
