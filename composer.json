@@ -10,7 +10,9 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "guzzle/guzzle": "*",
+        "guzzlehttp/guzzle":"*"
     },
     "autoload": {
         "psr-0": {
