@@ -6,3 +6,4 @@ gen
 ### Composer template
 composer.phar
 vendor/
+composer.lock
