@@ -12,9 +12,7 @@
     "require": {
         "php": ">=5.4.0",
         "guzzle/guzzle": "*",
-        "guzzlehttp/guzzle":"*",
-        "phpunit/phpunit": "3.7.*",
-        "phpunit/php-invoker" : ">=1.1.0@stable"
+        "guzzlehttp/guzzle":"*"
     },
     "autoload": {
         "psr-0": {
