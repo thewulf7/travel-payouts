@@ -362,7 +362,6 @@ class Tickets implements iService
                 ->setReturnDate(new \DateTime($item['return_at']))
                 ->setExpires(new \DateTime($item['expires_at']))
                 ->setNumberOfChanges($item['transfers'])
-                ->setDistance($item['distance'])
                 ->setAirline($item['airline'])
                 ->setFlightNumber($item['flight_number']);
 
