@@ -4,6 +4,8 @@ namespace travelPayouts\services;
 
 use travelPayouts\components\Client;
 use travelPayouts\components\iService;
+use travelPayouts\entity\Airport;
+use travelPayouts\entity\Ticket;
 
 /**
  * Tickets service
@@ -49,7 +51,8 @@ class Tickets implements iService
      * @param int           $trip_class          Class of trip. Can be 0,1,2
      * @param int           $trip_duration       Trip duration in days
      *
-     * @return array
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
     public function getLatestPrices($origin = '', $destination = '', $one_way = false, $currency = 'rub', $period_type = 'year', $page = 1, $limit = 30, $show_to_affiliates = true, $sorting = 'price', $trip_class = self::ECONOMY_CLASS, $trip_duration = 0)
     {
@@ -69,7 +72,28 @@ class Tickets implements iService
             'trip_duration'      => $trip_duration > 0 ? $trip_duration : null,
         ];
 
-        return $this->getClient()->execute($url, $options);
+        $response = $this->getClient()->execute($url, $options);
+
+        return array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['value'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setActual($item['actual'])
+                ->setDepartDate(new \DateTime($item['depart_date']))
+                ->setReturnDate(new \DateTime($item['return_date']))
+                ->setFoundAt(new \DateTime($item['found_at']))
+                ->setNumberOfChanges($item['number_of_changes'])
+                ->setDistance($item['distance'])
+                ->setShowToAffiliates($item['show_to_affiliates'])
+                ->setTripClass($item['trip_class']);
+
+            return $ticket;
+        }, $response['data']);
+
     }
 
     /**
@@ -82,9 +106,10 @@ class Tickets implements iService
      * @param bool|true $show_to_affiliates  false - all prices, true - prices found with affiliate marker
      *                                       (recommended). Default value is true.
      *
-     * @return array
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
-    public function getMonthMatrix($origin, $destination, $month, $currency = 'RUB', $show_to_affiliates = true)
+    public function getMonthMatrix($origin, $destination, $month, $currency = 'rub', $show_to_affiliates = true)
     {
         $url = 'prices/month-matrix';
 
@@ -98,7 +123,26 @@ class Tickets implements iService
             'month'              => $date->format('Y-m-d'),
         ];
 
-        return $this->getClient()->execute($url, $options);
+        $response = $this->getClient()->execute($url, $options);
+
+        return array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['value'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setActual($item['actual'])
+                ->setDepartDate(new \DateTime($item['depart_date']))
+                ->setFoundAt(new \DateTime($item['found_at']))
+                ->setNumberOfChanges($item['number_of_changes'])
+                ->setDistance($item['distance'])
+                ->setShowToAffiliates($item['show_to_affiliates'])
+                ->setTripClass($item['trip_class']);
+
+            return $ticket;
+        }, $response['data']);
     }
 
     /**
@@ -113,9 +157,12 @@ class Tickets implements iService
      *                                       (recommended). Default value is true.
      *
      * @return array
+     * @throws \RuntimeException
      */
-    public function getNearestPlacesMatrix($origin, $destination, $depart_date, $return_date, $currency = 'rub', $show_to_affiliates = true)
+    public function getNearestPlacesMatrix($origin = '', $destination = '', $depart_date, $return_date, $currency = 'rub', $show_to_affiliates = true)
     {
+        $arResult = [];
+
         $url = 'prices/nearest-places-matrix';
 
         $depart_date = new \DateTime($depart_date);
@@ -130,7 +177,39 @@ class Tickets implements iService
             'return_date'        => $return_date->format('Y-m-d'),
         ];
 
-        return $this->getClient()->execute($url, $options);
+        $response = $this->getClient()->execute($url, $options);
+
+        $arResult['origins'] = array_map(function ($iata)
+        {
+            return new Airport($iata);
+        }, $response['data']['origins']);
+
+        $arResult['destinations'] = array_map(function ($iata)
+        {
+            return new Airport($iata);
+        }, $response['data']['destinations']);
+
+        $arResult['prices'] = array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['value'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setActual($item['actual'])
+                ->setDepartDate(new \DateTime($item['depart_date']))
+                ->setReturnDate(new \DateTime($item['return_date']))
+                ->setFoundAt(new \DateTime($item['found_at']))
+                ->setNumberOfChanges($item['number_of_changes'])
+                ->setDistance($item['distance'])
+                ->setShowToAffiliates($item['show_to_affiliates'])
+                ->setTripClass($item['trip_class']);
+
+            return $ticket;
+        }, $response['data']['prices']);
+
+        return $arResult;
     }
 
     /**
@@ -144,7 +223,8 @@ class Tickets implements iService
      * @param bool|true $show_to_affiliates  false - all prices, true - prices found with affiliate marker
      *                                       (recommended). Default value is true.
      *
-     * @return mixed
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
     public function getWeekMatrix($origin, $destination, $depart_date, $return_date, $currency = 'rub', $show_to_affiliates = true)
     {
@@ -162,19 +242,78 @@ class Tickets implements iService
             'return_date'        => $return_date->format('Y-m-d'),
         ];
 
-        return $this->getClient()->execute($url, $options);
+        $response = $this->getClient()->execute($url, $options);
+
+        return array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['value'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setActual($item['actual'])
+                ->setDepartDate(new \DateTime($item['depart_date']))
+                ->setReturnDate(new \DateTime($item['return_date']))
+                ->setFoundAt(new \DateTime($item['found_at']))
+                ->setNumberOfChanges($item['number_of_changes'])
+                ->setDistance($item['distance'])
+                ->setShowToAffiliates($item['show_to_affiliates'])
+                ->setTripClass($item['trip_class']);
+
+            return $ticket;
+        }, $response['data']);
+
     }
 
     /**
      * The best offers on holidays from popular cities
      *
      * @return array
+     * @throws \RuntimeException
      */
     public function getHolidaysByRoute()
     {
+        $arResult = [];
+
         $url = 'prices/holidays-by-routes';
 
-        return $this->getClient()->execute($url, []);
+        $response = $this->getClient()->execute($url, []);
+
+        $arResult['title'] = $response['data']['title'];
+
+        $arResult['dates'] = array_map(function ($item)
+        {
+            return new \DateTime($item);
+        }, $response['data']['dates']);
+
+        $arResult['origins'] = array_map(function ($originArray)
+        {
+            return [
+                'airport' => new Airport($originArray['iata']),
+                'prices'  => array_map(function ($item)
+                {
+                    $ticket = new Ticket();
+                    $ticket
+                        ->setValue($item['value'])
+                        ->setDestination(new Airport($item['destination']))
+                        ->setOrigin(new Airport($item['origin']))
+                        ->setCurrency('rub')
+                        ->setActual($item['actual'])
+                        ->setDepartDate(new \DateTime($item['depart_date']))
+                        ->setReturnDate(new \DateTime($item['return_date']))
+                        ->setFoundAt(new \DateTime($item['found_at']))
+                        ->setNumberOfChanges($item['number_of_changes'])
+                        ->setDistance($item['distance'])
+                        ->setShowToAffiliates($item['show_to_affiliates'])
+                        ->setTripClass($item['trip_class']);
+
+                    return $ticket;
+                }, $originArray['prices']),
+            ];
+        }, $response['data']['origins']);
+
+        return $arResult;
     }
 
     /**
@@ -192,7 +331,7 @@ class Tickets implements iService
      *
      * @return mixed
      */
-    public function getCalendar($origin, $destination, $depart_date, $currency = 'rub', $return_date = '', $calendar_type = 'departure_date', $trip_duration = 0)
+    public function getCalendar($origin, $destination, $depart_date, $return_date = '', $currency = 'rub', $calendar_type = 'departure_date', $trip_duration = 0)
     {
         $url = 'prices/calendar';
 
@@ -206,10 +345,29 @@ class Tickets implements iService
             'depart_date'   => $depart_date->format('Y-m'),
             'return_date'   => $return_date ?: null,
             'trip_duration' => $trip_duration > 0 ? $trip_duration : null,
-            'calendar_type' => in_array($calendar_type, ['departure_date', 'return_date'], true) ? $calendar_type : 'departure_date',
+            'calendar_type' => in_array($calendar_type, ['departure_date', 'return_date'], true) ? $calendar_type : null,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+
+        return array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['price'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setDepartDate(new \DateTime($item['departure_at']))
+                ->setReturnDate(new \DateTime($item['return_at']))
+                ->setExpires(new \DateTime($item['expires_at']))
+                ->setNumberOfChanges($item['transfers'])
+                ->setDistance($item['distance'])
+                ->setAirline($item['airline'])
+                ->setFlightNumber($item['flight_number']);
+
+            return $ticket;
+        }, $response['data']);
     }
 
     /**

@@ -27,17 +27,24 @@ class Client
     private $_apiVersion = 'v2';
 
     /**
+     * @var string
+     */
+    private $_token;
+
+    /**
      * @param $token
      */
     public function __construct($token)
     {
+        $this->_token = $token;
+
         $this->_client = new HttpClient(
             [
                 'base_uri' => self::API_HOST,
                 'headers'  =>
                     [
                         'Content-Type'    => 'application/json',
-                        'X-Access-Token'  => $token,
+                        'X-Access-Token'  => $this->_token,
                         'Accept-Encoding' => 'gzip,deflate,sdch',
                     ],
             ]
@@ -114,5 +121,15 @@ class Client
         $this->_apiVersion = $apiVersion;
 
         return $this;
+    }
+
+    /**
+     * Get Token
+     *
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->_token;
     }
 }
