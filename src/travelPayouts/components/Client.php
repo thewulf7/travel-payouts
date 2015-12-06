@@ -61,18 +61,24 @@ class Client
      */
     public function execute($url, array $options, $type = 'GET')
     {
-        $url = '/' . $this->getApiVersion() . '/' . $url;
+        $url    = '/' . $this->getApiVersion() . '/' . $url;
+        $params = [
+            'http_errors' => false
+        ];
+
+        $paramName          = $type === 'GET' ? 'query' : 'body';
+        $params[$paramName] = $options;
 
         /** @var \GuzzleHttp\Psr7\Request $res */
-        $res = $this->getClient()->request($type, $url, $options);
+        $res = $this->getClient()->request($type, $url, $params);
 
         $statusCode = $res->getStatusCode();
         $body       = $res->getBody();
 
         if ($statusCode !== 200)
         {
-            $strBody = (string)$body;
-            throw new \RuntimeException("Remote host status code exception: {$statusCode}:{$strBody}");
+            $strBody = json_decode((string)$body,true);
+            throw new \RuntimeException("{$statusCode}:{$strBody['message']}");
         }
 
         return $this->makeApiResponse($body);

@@ -35,6 +35,22 @@ class Tickets implements iService
     private $_client;
 
     /**
+     * @return \travelPayouts\components\Client
+     */
+    public function getClient()
+    {
+        return $this->_client;
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function setClient($client)
+    {
+        $this->_client = $client;
+    }
+
+    /**
      * Flights found by our users in the last 48 hours.
      *
      * @param string        $origin              City IATA code.
@@ -329,7 +345,8 @@ class Tickets implements iService
      *                               Default value is departure_date. Should be in ["departure_date", "return_date"].
      * @param int    $trip_duration  Trip duration in days.
      *
-     * @return mixed
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
     public function getCalendar($origin, $destination, $depart_date, $return_date = '', $currency = 'rub', $calendar_type = 'departure_date', $trip_duration = 0)
     {
@@ -343,7 +360,7 @@ class Tickets implements iService
             'origin'        => $origin,
             'destination'   => $destination,
             'depart_date'   => $depart_date->format('Y-m'),
-            'return_date'   => $return_date ?: null,
+            'return_date'   => $return_date ? $return_date->format('Y-m') : null,
             'trip_duration' => $trip_duration > 0 ? $trip_duration : null,
             'calendar_type' => in_array($calendar_type, ['departure_date', 'return_date'], true) ? $calendar_type : null,
         ];
@@ -379,24 +396,45 @@ class Tickets implements iService
      * @param string $return_date Return date in format '%Y-%m-%d'.
      * @param string $currency    Currency of prices. Default value is rub.
      *
-     * @return mixed
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
-    public function getCheap($origin, $destination, $depart_date, $return_date, $currency = 'rub')
+    public function getCheap($origin, $destination, $depart_date = '', $return_date = '', $currency = 'rub')
     {
         $url = 'prices/cheap';
 
-        $depart_date = new \DateTime($depart_date);
-        $return_date = new \DateTime($return_date);
+        $depart = new \DateTime($depart_date);
+        $return = new \DateTime($return_date);
+
+        $depart = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $depart->format('Y-m-d') : $depart->format('Y-m');
+        $return = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $return->format('Y-m-d') : $return->format('Y-m');
 
         $options = [
             'currency'    => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'      => $origin,
             'destination' => $destination,
-            'depart_date' => $depart_date->format('Y-m-d'),
-            'return_date' => $return_date->format('Y-m-d'),
+            'depart_date' => $depart_date !== '' ? $depart : null,
+            'return_date' => $return_date !== '' ? $return : null,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+
+        return array_map(function ($item) use ($currency, $destination, $origin)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['price'])
+                ->setDestination(new Airport($destination))
+                ->setOrigin(new Airport($origin))
+                ->setCurrency($currency)
+                ->setDepartDate(new \DateTime($item['departure_at']))
+                ->setReturnDate(new \DateTime($item['return_at']))
+                ->setExpires(new \DateTime($item['expires_at']))
+                ->setAirline($item['airline'])
+                ->setFlightNumber($item['flight_number']);
+
+            return $ticket;
+        }, $response['data'][$destination]);
     }
 
     /**
@@ -409,24 +447,50 @@ class Tickets implements iService
      * @param string $return_date Return date in format '%Y-%m-%d'.
      * @param string $currency    Currency of prices. Default value is rub.
      *
-     * @return mixed
+     * @return Ticket
+     * @throws \RuntimeException
      */
-    public function getDirect($origin, $destination, $depart_date, $return_date, $currency = 'rub')
+    public function getDirect($origin, $destination, $depart_date = '', $return_date = '', $currency = 'rub')
     {
         $url = 'prices/direct';
 
-        $depart_date = new \DateTime($depart_date);
-        $return_date = new \DateTime($return_date);
+        $depart = new \DateTime($depart_date);
+        $return = new \DateTime($return_date);
+
+        $depart = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $depart->format('Y-m-d') : $depart->format('Y-m');
+        $return = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $return->format('Y-m-d') : $return->format('Y-m');
 
         $options = [
             'currency'    => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'      => $origin,
             'destination' => $destination,
-            'depart_date' => $depart_date->format('Y-m-d'),
-            'return_date' => $return_date->format('Y-m-d'),
+            'depart_date' => $depart_date !== '' ? $depart : null,
+            'return_date' => $return_date !== '' ? $return : null,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+
+        //TODO: replace with city_code
+        $item = array_shift($response['data']);
+
+        if(count($item) === 0 && $response['success'])
+        {
+            return null;
+        }
+
+        $ticket = new Ticket();
+        $ticket
+            ->setValue($item[0]['price'])
+            ->setDestination(new Airport($destination))
+            ->setOrigin(new Airport($origin))
+            ->setCurrency($currency)
+            ->setDepartDate(new \DateTime($item[0]['departure_at']))
+            ->setReturnDate(new \DateTime($item[0]['return_at']))
+            ->setExpires(new \DateTime($item[0]['expires_at']))
+            ->setAirline($item[0]['airline'])
+            ->setFlightNumber($item[0]['flight_number']);
+
+        return $ticket;
     }
 
     /**
@@ -436,7 +500,8 @@ class Tickets implements iService
      * @param string $destination City IATA code.
      * @param string $currency    Currency of prices. Default value is rub.
      *
-     * @return array
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
     public function getMonthly($origin, $destination, $currency = 'rub')
     {
@@ -448,7 +513,25 @@ class Tickets implements iService
             'destination' => $destination,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+
+        return array_map(function ($item) use ($currency)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['price'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency($currency)
+                ->setDepartDate(new \DateTime($item['departure_at']))
+                ->setReturnDate(new \DateTime($item['return_at']))
+                ->setExpires(new \DateTime($item['expires_at']))
+                ->setNumberOfChanges($item['transfers'])
+                ->setAirline($item['airline'])
+                ->setFlightNumber($item['flight_number']);
+
+            return $ticket;
+        }, $response['data']);
     }
 
     /**
@@ -456,50 +539,70 @@ class Tickets implements iService
      *
      * @param string $origin City IATA code.
      *
-     * @return array
+     * @return array Ticket[]
+     * @throws \RuntimeException
      */
     public function getPopularRoutesFromCity($origin)
     {
-        $url = 'prices/monthly';
+        $url = 'city-directions';
 
         $options = [
             'origin' => $origin,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+
+        return array_map(function ($item)
+        {
+            $ticket = new Ticket();
+            $ticket
+                ->setValue($item['price'])
+                ->setDestination(new Airport($item['destination']))
+                ->setOrigin(new Airport($item['origin']))
+                ->setCurrency('rub')
+                ->setDepartDate(new \DateTime($item['departure_at']))
+                ->setReturnDate(new \DateTime($item['return_at']))
+                ->setExpires(new \DateTime($item['expires_at']))
+                ->setNumberOfChanges($item['transfers'])
+                ->setAirline($item['airline'])
+                ->setFlightNumber($item['flight_number']);
+
+            return $ticket;
+        }, $response['data']);
     }
 
     /**
      * @param string $airline_code Company IATA code in uppercase.
      * @param int    $limit        Number of records. Default value: 30. Max value: 1000
      *
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      */
     public function getAirlineDirections($airline_code, $limit = 30)
     {
-        $url = 'airline-directions';
+        $arResult = [];
+        $url      = 'airline-directions';
 
         $options = [
             'airline_code' => $airline_code,
             'limit'        => $limit,
         ];
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options);
-    }
+        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
-    /**
-     * @return \travelPayouts\components\Client
-     */
-    public function getClient()
-    {
-        return $this->_client;
-    }
+        foreach ($response['data'] as $direction => $rating)
+        {
 
-    /**
-     * @param Client $client
-     */
-    public function setClient($client)
-    {
-        $this->_client = $client;
+            list($origin, $destination) = explode('-', $direction);
+
+            $arResult[] = [
+                'origin'      => new Airport($origin),
+                'destination' => new Airport($destination),
+                'rating'      => $rating,
+            ];
+        }
+
+        return $arResult;
+
     }
 }
