@@ -27,17 +27,24 @@ class Client
     private $_apiVersion = 'v2';
 
     /**
+     * @var string
+     */
+    private $_token;
+
+    /**
      * @param $token
      */
     public function __construct($token)
     {
+        $this->_token = $token;
+
         $this->_client = new HttpClient(
             [
                 'base_uri' => self::API_HOST,
                 'headers'  =>
                     [
                         'Content-Type'    => 'application/json',
-                        'X-Access-Token'  => $token,
+                        'X-Access-Token'  => $this->_token,
                         'Accept-Encoding' => 'gzip,deflate,sdch',
                     ],
             ]
@@ -54,18 +61,24 @@ class Client
      */
     public function execute($url, array $options, $type = 'GET')
     {
-        $url = '/' . $this->getApiVersion() . '/' . $url;
+        $url    = '/' . $this->getApiVersion() . '/' . $url;
+        $params = [
+            'http_errors' => false
+        ];
+
+        $paramName          = $type === 'GET' ? 'query' : 'body';
+        $params[$paramName] = $options;
 
         /** @var \GuzzleHttp\Psr7\Request $res */
-        $res = $this->getClient()->request($type, $url, $options);
+        $res = $this->getClient()->request($type, $url, $params);
 
         $statusCode = $res->getStatusCode();
         $body       = $res->getBody();
 
         if ($statusCode !== 200)
         {
-            $strBody = (string)$body;
-            throw new \RuntimeException("Remote host status code exception: {$statusCode}:{$strBody}");
+            $strBody = json_decode((string)$body,true);
+            throw new \RuntimeException("{$statusCode}:{$strBody['message']}");
         }
 
         return $this->makeApiResponse($body);
@@ -114,5 +127,15 @@ class Client
         $this->_apiVersion = $apiVersion;
 
         return $this;
+    }
+
+    /**
+     * Get Token
+     *
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->_token;
     }
 }

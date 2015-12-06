@@ -8,6 +8,8 @@ use travelPayouts\components\Client;
 /**
  * Class Data. Used to receive different data from the travelPayouts.
  *
+ * TODO: move data JSON files to special folder
+ *
  * @package travelPayouts\services
  */
 class Data implements iService
