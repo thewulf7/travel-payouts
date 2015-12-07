@@ -71,7 +71,7 @@ class Flight implements iService
 
         $options['json']['signature'] = $this->getSignature($options['json']);
 
-        return $this->getClient()->setApiVersion('v1')->execute($url, $options, 'POST');
+        return $this->getClient()->setApiVersion('v1')->execute($url, $options, 'POST', false);
     }
 
     /**
