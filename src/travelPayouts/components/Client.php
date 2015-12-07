@@ -52,22 +52,28 @@ class Client
     }
 
     /**
-     * @param        $url
-     * @param array  $options
-     * @param string $type
+     * @param string    $url
+     * @param array     $options
+     * @param string    $type
+     * @param bool|true $replaceOptions
      *
      * @return mixed
-     * @throws \RuntimeException
      */
-    public function execute($url, array $options, $type = 'GET')
+    public function execute($url, array $options, $type = 'GET', $replaceOptions = true)
     {
         $url    = '/' . $this->getApiVersion() . '/' . $url;
         $params = [
-            'http_errors' => false
+            'http_errors' => false,
         ];
 
-        $paramName          = $type === 'GET' ? 'query' : 'body';
-        $params[$paramName] = $options;
+        if ($replaceOptions)
+        {
+            $paramName          = $type === 'GET' ? 'query' : 'body';
+            $params[$paramName] = $options;
+        } else
+        {
+            $params += $options;
+        }
 
         /** @var \GuzzleHttp\Psr7\Request $res */
         $res = $this->getClient()->request($type, $url, $params);
@@ -77,7 +83,7 @@ class Client
 
         if ($statusCode !== 200)
         {
-            $strBody = json_decode((string)$body,true);
+            $strBody = json_decode((string)$body, true);
             throw new \RuntimeException("{$statusCode}:{$strBody['message']}");
         }
 
