@@ -3,11 +3,11 @@ namespace travelPayouts\entity;
 
 
 /**
- * Class Airport
+ * Class City
  *
  * @package travelPayouts\entity
  */
-class Airport
+class City
 {
     /**
      * @var string
@@ -22,7 +22,7 @@ class Airport
     /**
      * @var array
      */
-    private $_coordinates = [];
+    private $_coordinates;
 
     /**
      * @var string
@@ -32,7 +32,7 @@ class Airport
     /**
      * @var array
      */
-    private $_nameTranslations = [];
+    private $_nameTranslations;
 
     /**
      * @var Country
@@ -40,18 +40,13 @@ class Airport
     private $_country;
 
     /**
-     * @var City
+     * @param $code
      */
-    private $_city;
-
-    /**
-     * @param string $iataCode
-     */
-    public function __construct($iataCode = '')
+    public function __construct($code = '')
     {
-        if ($iataCode !== '')
+        if ($code !== '')
         {
-            $this->setIata($iataCode);
+            $this->setIata($code);
         }
     }
 
@@ -70,7 +65,7 @@ class Airport
      *
      * @param string $iata
      *
-     * @return Airport
+     * @return City
      */
     public function setIata($iata)
     {
@@ -94,7 +89,7 @@ class Airport
      *
      * @param string $name
      *
-     * @return Airport
+     * @return City
      */
     public function setName($name)
     {
@@ -118,7 +113,7 @@ class Airport
      *
      * @param array $coordinates
      *
-     * @return Airport
+     * @return City
      */
     public function setCoordinates($coordinates)
     {
@@ -142,7 +137,7 @@ class Airport
      *
      * @param string $timeZone
      *
-     * @return Airport
+     * @return City
      */
     public function setTimeZone($timeZone)
     {
@@ -166,7 +161,7 @@ class Airport
      *
      * @param array $nameTranslations
      *
-     * @return Airport
+     * @return City
      */
     public function setNameTranslations($nameTranslations)
     {
@@ -190,7 +185,7 @@ class Airport
      *
      * @param Country $country
      *
-     * @return Airport
+     * @return City
      */
     public function setCountry($country)
     {
@@ -198,29 +193,4 @@ class Airport
 
         return $this;
     }
-
-    /**
-     * Get City
-     *
-     * @return City
-     */
-    public function getCity()
-    {
-        return $this->_city;
-    }
-
-    /**
-     * Set city
-     *
-     * @param City $city
-     *
-     * @return Airport
-     */
-    public function setCity($city)
-    {
-        $this->_city = $city;
-
-        return $this;
-    }
-
 }

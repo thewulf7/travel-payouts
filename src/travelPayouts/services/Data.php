@@ -4,16 +4,32 @@ namespace travelPayouts\services;
 
 use travelPayouts\components\iService;
 use travelPayouts\components\Client;
+use travelPayouts\entity\Airport;
+use travelPayouts\entity\City;
+use travelPayouts\entity\Country;
 
 /**
  * Class Data. Used to receive different data from the travelPayouts.
- *
- * TODO: move data JSON files to special folder
  *
  * @package travelPayouts\services
  */
 class Data implements iService
 {
+    /**
+     * Include only once data from JSON
+     *
+     * @var array
+     */
+    protected $data = [
+        'countries'          => [],
+        'cities'             => [],
+        'airports'           => [],
+        'airlines'           => [],
+        'airlines_alliances' => [],
+        'planes'             => [],
+        'routes'             => [],
+    ];
+
     /**
      * @var Client
      */
@@ -22,85 +38,308 @@ class Data implements iService
     /**
      * Get countries
      *
-     * @return array
+     * @param bool $simpleArray
+     *
+     * @return array Country[]
+     * @throws \RuntimeException
      */
-    public function getCountries()
+    public function getCountries($simpleArray = false)
     {
-        $url = 'countries.json';
+        $fileName = 'countries.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['countries']) === 0)
+        {
+            $this->data['countries'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $simpleArray === true ? $this->data['countries'] : array_map(function ($country)
+        {
+            $model = new Country();
+
+            $model
+                ->setName($country['name'])
+                ->setNameTranslations($country['name_translations'])
+                ->setCurrency($country['currency']);
+
+            return $model;
+        }, $this->data['countries']);
     }
 
     /**
      * Get cities
      *
-     * @return array
+     * @param bool $simpleArray
+     *
+     * @return array City[]
+     * @throws \RuntimeException
      */
-    public function getCities()
+    public function getCities($simpleArray = false)
     {
-        $url = 'cities.json';
+        $fileName = 'cities.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['cities']) === 0)
+        {
+            $this->data['cities'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $simpleArray === true ? $this->data['cities'] : array_map(function ($city)
+        {
+            $model = new City();
+
+            $model
+                ->setName($city['name'])
+                ->setNameTranslations($city['name_translations'])
+                ->setCoordinates($city['coordinates'])
+                ->setTimeZone($city['time_zone'])
+                ->setCountry($this->getCountry($city['country_code']));
+
+            return $model;
+        }, $this->data['cities']);
     }
 
     /**
      * Get airports
      *
-     * @return array
+     * @param bool $simpleArray
+     *
+     * @return array Airport[]
+     * @throws \RuntimeException
      */
-    public function getAirports()
+    public function getAirports($simpleArray = false)
     {
-        $url = 'airports.json';
+        $fileName = 'airports.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['airports']) === 0)
+        {
+            $this->data['airports'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $simpleArray === true ? $this->data['airports'] : array_map(function ($airport)
+        {
+            $model = new Airport();
+
+            $model
+                ->setIata($airport['code'])
+                ->setName($airport['name'])
+                ->setCoordinates($airport['coordinates'])
+                ->setNameTranslations($airport['name_translations'])
+                ->setTimeZone($airport['time_zone'])
+                ->setCountry($this->getCountry($airport['country_code']))
+                ->setCity($this->getCity($airport['city_code']));
+
+            return $model;
+        }, $this->data['airports']);
+    }
+
+    /**
+     * Get Airport object by code
+     *
+     * @param $code
+     *
+     * @return null|Airport
+     * @throws \RuntimeException
+     */
+    public function getAirport($code)
+    {
+        $jsonArray = $this->getAirports(true);
+
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
+
+        if (!$key)
+        {
+            return null;
+        }
+
+        $model = new Airport();
+
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setCoordinates($jsonArray[$key]['coordinates'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setTimeZone($jsonArray[$key]['time_zone'])
+            ->setCountry($this->getCountry($jsonArray[$key]['country_code']))
+            ->setCity($this->getCity($jsonArray[$key]['city_code']));
+
+        return $model;
+    }
+
+    /**
+     * @param $code
+     *
+     * @return null|City
+     * @throws \RuntimeException
+     */
+    public function getCity($code)
+    {
+        $jsonArray = $this->getCities(true);
+
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
+
+        if (!$key)
+        {
+            return null;
+        }
+
+        $model = new City();
+
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setCoordinates($jsonArray[$key]['coordinates'])
+            ->setTimeZone($jsonArray[$key]['time_zone'])
+            ->setCountry($this->getCountry($jsonArray[$key]['country_code']));
+
+        return $model;
+    }
+
+    /**
+     * @param $code
+     *
+     * @return null|Country
+     * @throws \RuntimeException
+     */
+    public function getCountry($code)
+    {
+        $jsonArray = $this->getCountries(true);
+
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
+
+        if (!$key)
+        {
+            return null;
+        }
+        $model = new Country();
+
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setCurrency($jsonArray[$key]['currency']);
+
+        return $model;
     }
 
     /**
      * Get airlines
      *
      * @return mixed
+     * @throws \RuntimeException
      */
     public function getAirlines()
     {
-        $url = 'airlines.json';
+        $fileName = 'airlines.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['airlines']) === 0)
+        {
+            $this->data['airlines'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['airlines'];
     }
 
     /**
      * Get airlines alliances
      *
      * @return mixed
+     * @throws \RuntimeException
      */
     public function getAirlinesAlliances()
     {
-        $url = 'airlines_alliances.json';
+        $fileName = 'airlines_alliances.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['airlines_alliances']) === 0)
+        {
+            $this->data['airlines_alliances'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['airlines_alliances'];
     }
 
     /**
      * Get planes codes
      *
      * @return array
+     * @throws \RuntimeException
      */
     public function getPlanes()
     {
-        $url = 'planes.json';
+        $fileName = 'planes.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['planes']) === 0)
+        {
+            $this->data['planes'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['planes'];
     }
 
     /**
      * Get popular routes
      *
      * @return array
+     * @throws \RuntimeException
      */
     public function getRoutes()
     {
-        $url = 'routes.json';
+        $fileName = 'routes.json';
 
-        return $this->getClient()->execute($url, []);
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['routes']) === 0)
+        {
+            $this->data['routes'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['routes'];
     }
 
     /**
@@ -117,7 +356,7 @@ class Data implements iService
         $uri    = 'http://www.travelpayouts.com/whereami';
         $locale = in_array($locale, ['en', 'ru', 'de', 'fr', 'it', 'pl', 'th'], true) ? $locale : 'ru';
 
-        if(!filter_var($ip, FILTER_VALIDATE_IP))
+        if (!filter_var($ip, FILTER_VALIDATE_IP))
         {
             throw new \RuntimeException($ip . ' is not a valid ip');
         }
@@ -181,5 +420,19 @@ class Data implements iService
         $this->_client->setApiVersion('data');
 
         return $this;
+    }
+
+    /**
+     * Get Path
+     *
+     * @param $fileName
+     *
+     * @return bool|string
+     */
+    private static function getPath($fileName)
+    {
+        $path = __DIR__ . '/../data' . $fileName;
+
+        return file_exists($path) ? $path : false;
     }
 }
