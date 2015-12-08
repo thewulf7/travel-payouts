@@ -1,18 +1,14 @@
 <?php
-namespace travelPayouts;
+namespace thewulf7\travelPayouts;
 
 
-use travelPayouts\components\Client;
-use travelPayouts\components\ServiceInjector;
-use travelPayouts\services\TicketsService;
-use travelPayouts\services\DataService;
-use travelPayouts\services\FlightService;
-use travelPayouts\services\PartnerService;
+use thewulf7\travelPayouts\components\Client;
+use thewulf7\travelPayouts\components\ServiceInjector;
 
 /**
  * Class Travel
  *
- * @package travelPayouts
+ * @package thewulf7\travelPayouts
  */
 class Travel
 {

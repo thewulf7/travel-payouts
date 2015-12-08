@@ -5,14 +5,14 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var \travelPayouts\services\TicketsService
+     * @var \thewulf7\travelPayouts\services\TicketsService
      */
     protected $service;
 
     public function setUp()
     {
-        $config = require(__DIR__ . '/../../../src/travelPayouts/config/tests.php');
-        $travel        = new \travelPayouts\Travel($config['token']);
+        $config = require(__DIR__ . '/../../../../src/thewulf7/travelPayouts/config/tests.php');
+        $travel        = new \thewulf7\travelPayouts\Travel($config['token']);
 
         $this->service = $travel->getTicketsService();
 
@@ -25,7 +25,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
         $destination = 'MOW';
 
         $tickets = $this->service->getLatestPrices($origin, $destination, false, 'rub', 'year', 1, 10);
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertGreaterThan(0, $ticket->getValue());
@@ -49,7 +49,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $tickets = $this->service->getMonthMatrix($origin, $destination, $date);
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertGreaterThan(0, $ticket->getValue());
@@ -97,7 +97,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
         self::assertContains($origin, $origins);
         self::assertContains($destination, $destinations);
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets['prices'] as $ticket)
         {
             self::assertGreaterThan(0, $ticket->getValue());
@@ -137,7 +137,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
             $returnObject->modify('+14 day')->getTimestamp(),
         ];
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertEquals($origin, $ticket->getOrigin()->getIata());
@@ -167,7 +167,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
             self::assertGreaterThan(0, $firstTicket->getValue());
             self::assertGreaterThan(0, $firstTicket->getDistance());
         }
-        /** @var \travelPayouts\entity\Airport $airport */
+        /** @var \thewulf7\travelPayouts\entity\Airport $airport */
         $airport = $holidays['origins'][1]['airport'];
 
         self::assertNotEmpty($airport->getIata());
@@ -182,7 +182,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $tickets = $this->service->getCalendar($origin, $destination, $date);
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertEquals($origin, $ticket->getOrigin()->getIata());
@@ -216,7 +216,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $tickets = $this->service->getCheap($origin, $destination, $depart, $return);
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertEquals($origin, $ticket->getOrigin()->getIata());
@@ -253,7 +253,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
             $month->modify('+1 month')->modify('first day of this month')->getTimestamp(),
         ];
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         $ticket = $this->service->getDirect($origin, $destination, $depart, $return);
 
         self::assertEquals($origin, $ticket->getOrigin()->getIata());
@@ -277,7 +277,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
         $depart = $month->setTime(0, 0, 0)->format('Y-m');
         $return = $month->format('Y-m');
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         $ticket = $this->service->getDirect($origin, $destination, $depart, $return);
 
         self::assertEquals(null, $ticket);
@@ -290,7 +290,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $tickets = $this->service->getMonthly($origin, $destination);
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertEquals($origin, $ticket->getOrigin()->getIata());
@@ -305,7 +305,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $tickets = $this->service->getPopularRoutesFromCity($origin);
 
-        /** @var \travelPayouts\entity\Ticket $ticket */
+        /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
         foreach ($tickets as $ticket)
         {
             self::assertEquals($origin, $ticket->getOrigin()->getIata());

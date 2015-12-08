@@ -1,11 +1,11 @@
 <?php
-namespace travelPayouts\entity;
+namespace thewulf7\travelPayouts\entity;
 
 
 /**
  * Class Airport
  *
- * @package travelPayouts\entity
+ * @package thewulf7\travelPayouts\entity
  */
 class Airport
 {

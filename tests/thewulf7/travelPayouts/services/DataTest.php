@@ -5,14 +5,14 @@ namespace services;
 class DataTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \travelPayouts\services\DataService
+     * @var \thewulf7\travelPayouts\services\DataService
      */
     protected $service;
 
     public function setUp()
     {
-        $config = require(__DIR__ . '/../../../src/travelPayouts/config/tests.php');
-        $travel        = new \travelPayouts\Travel($config['token']);
+        $config = require(__DIR__ . '/../../../../src/thewulf7/travelPayouts/config/tests.php');
+        $travel        = new \thewulf7\travelPayouts\Travel($config['token']);
         $this->service = $travel->getDataService();
 
         date_default_timezone_set('UTC');

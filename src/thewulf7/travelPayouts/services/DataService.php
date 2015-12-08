@@ -1,18 +1,18 @@
 <?php
-namespace travelPayouts\services;
+namespace thewulf7\travelPayouts\services;
 
 
-use travelPayouts\components\AbstractService;
-use travelPayouts\components\iService;
-use travelPayouts\components\Client;
-use travelPayouts\entity\Airport;
-use travelPayouts\entity\City;
-use travelPayouts\entity\Country;
+use thewulf7\travelPayouts\components\AbstractService;
+use thewulf7\travelPayouts\components\iService;
+use thewulf7\travelPayouts\components\Client;
+use thewulf7\travelPayouts\entity\Airport;
+use thewulf7\travelPayouts\entity\City;
+use thewulf7\travelPayouts\entity\Country;
 
 /**
  * Class Data. Used to receive different data from the travelPayouts.
  *
- * @package travelPayouts\services
+ * @package thewulf7\travelPayouts\services
  */
 class DataService extends AbstractService implements iService
 {
@@ -421,7 +421,7 @@ class DataService extends AbstractService implements iService
     }
 
     /**
-     * @return \travelPayouts\components\Client
+     * @return \thewulf7\travelPayouts\components\Client
      */
     public function getClient()
     {
