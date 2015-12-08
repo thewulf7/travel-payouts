@@ -1,6 +1,7 @@
 <?php
+namespace services;
 
-class TicketsTest extends PHPUnit_Framework_TestCase
+class TicketsTest extends \PHPUnit_Framework_TestCase
 {
 
     /**

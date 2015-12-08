@@ -20,7 +20,7 @@ class Data implements iService
      *
      * @var array
      */
-    protected $data = [
+    public $data = [
         'countries'          => [],
         'cities'             => [],
         'airports'           => [],
@@ -51,7 +51,7 @@ class Data implements iService
 
         if (!$sResult)
         {
-            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall the package.");
         }
 
         if (count($this->data['countries']) === 0)
@@ -64,6 +64,7 @@ class Data implements iService
             $model = new Country();
 
             $model
+                ->setIata($country['code'])
                 ->setName($country['name'])
                 ->setNameTranslations($country['name_translations'])
                 ->setCurrency($country['currency']);
@@ -101,6 +102,7 @@ class Data implements iService
             $model = new City();
 
             $model
+                ->setIata($city['code'])
                 ->setName($city['name'])
                 ->setNameTranslations($city['name_translations'])
                 ->setCoordinates($city['coordinates'])
@@ -145,7 +147,6 @@ class Data implements iService
                 ->setCoordinates($airport['coordinates'])
                 ->setNameTranslations($airport['name_translations'])
                 ->setTimeZone($airport['time_zone'])
-                ->setCountry($this->getCountry($airport['country_code']))
                 ->setCity($this->getCity($airport['city_code']));
 
             return $model;
@@ -166,7 +167,7 @@ class Data implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if (!$key)
+        if ($key === false)
         {
             return null;
         }
@@ -179,7 +180,6 @@ class Data implements iService
             ->setCoordinates($jsonArray[$key]['coordinates'])
             ->setNameTranslations($jsonArray[$key]['name_translations'])
             ->setTimeZone($jsonArray[$key]['time_zone'])
-            ->setCountry($this->getCountry($jsonArray[$key]['country_code']))
             ->setCity($this->getCity($jsonArray[$key]['city_code']));
 
         return $model;
@@ -197,7 +197,7 @@ class Data implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if (!$key)
+        if ($key === false)
         {
             return null;
         }
@@ -227,7 +227,7 @@ class Data implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if (!$key)
+        if ($key === false)
         {
             return null;
         }
@@ -431,7 +431,7 @@ class Data implements iService
      */
     private static function getPath($fileName)
     {
-        $path = __DIR__ . '/../data' . $fileName;
+        $path = __DIR__ . '/../data/' . $fileName;
 
         return file_exists($path) ? $path : false;
     }

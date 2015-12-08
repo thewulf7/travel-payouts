@@ -35,11 +35,6 @@ class Airport
     private $_nameTranslations = [];
 
     /**
-     * @var Country
-     */
-    private $_country;
-
-    /**
      * @var City
      */
     private $_city;
@@ -171,30 +166,6 @@ class Airport
     public function setNameTranslations($nameTranslations)
     {
         $this->_nameTranslations = $nameTranslations;
-
-        return $this;
-    }
-
-    /**
-     * Get Country
-     *
-     * @return Country
-     */
-    public function getCountry()
-    {
-        return $this->_country;
-    }
-
-    /**
-     * Set country
-     *
-     * @param Country $country
-     *
-     * @return Airport
-     */
-    public function setCountry($country)
-    {
-        $this->_country = $country;
 
         return $this;
     }
