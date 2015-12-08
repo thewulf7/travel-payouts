@@ -2,6 +2,7 @@
 namespace travelPayouts\services;
 
 
+use travelPayouts\components\AbstractService;
 use travelPayouts\components\iService;
 use travelPayouts\components\Client;
 
@@ -10,7 +11,7 @@ use travelPayouts\components\Client;
  *
  * @package travelPayouts\services
  */
-class Flight implements iService
+class Flight extends AbstractService implements iService
 {
     /**
      * @var Client

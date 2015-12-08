@@ -2,6 +2,7 @@
 namespace travelPayouts\services;
 
 
+use travelPayouts\components\AbstractService;
 use travelPayouts\components\iService;
 use travelPayouts\components\Client;
 use travelPayouts\entity\Airport;
@@ -13,7 +14,7 @@ use travelPayouts\entity\Country;
  *
  * @package travelPayouts\services
  */
-class Data implements iService
+class Data extends AbstractService implements iService
 {
     /**
      * Include only once data from JSON
@@ -240,6 +241,25 @@ class Data implements iService
             ->setCurrency($jsonArray[$key]['currency']);
 
         return $model;
+    }
+
+    /**
+     * Get City or Airport
+     *
+     * @param $code
+     *
+     * @return null|Airport|City
+     */
+    public function getPlace($code)
+    {
+        $oResult = $this->getCity($code);
+
+        if(!$oResult)
+        {
+            $oResult = $this->getAirport($code);
+        }
+
+        return $oResult;
     }
 
     /**

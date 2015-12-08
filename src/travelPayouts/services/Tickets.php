@@ -2,9 +2,9 @@
 namespace travelPayouts\services;
 
 
+use travelPayouts\components\AbstractService;
 use travelPayouts\components\Client;
 use travelPayouts\components\iService;
-use travelPayouts\entity\Airport;
 use travelPayouts\entity\Ticket;
 
 /**
@@ -12,7 +12,7 @@ use travelPayouts\entity\Ticket;
  *
  * @package travelPayouts
  */
-class Tickets implements iService
+class Tickets extends AbstractService implements iService
 {
     /**
      *  Class of service
@@ -90,13 +90,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->execute($url, $options);
 
-        return array_map(function ($item) use ($currency)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['value'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setActual($item['actual'])
                 ->setDepartDate(new \DateTime($item['depart_date']))
@@ -141,13 +143,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->execute($url, $options);
 
-        return array_map(function ($item) use ($currency)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['value'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setActual($item['actual'])
                 ->setDepartDate(new \DateTime($item['depart_date']))
@@ -195,23 +199,25 @@ class Tickets implements iService
 
         $response = $this->getClient()->execute($url, $options);
 
-        $arResult['origins'] = array_map(function ($iata)
+        $dataService = $this->getDataService();
+
+        $arResult['origins'] = array_map(function ($iata) use ($dataService)
         {
-            return new Airport($iata);
+            return $dataService->getAirport($iata);
         }, $response['data']['origins']);
 
-        $arResult['destinations'] = array_map(function ($iata)
+        $arResult['destinations'] = array_map(function ($iata) use ($dataService)
         {
-            return new Airport($iata);
+            return $dataService->getAirport($iata);
         }, $response['data']['destinations']);
 
-        $arResult['prices'] = array_map(function ($item) use ($currency)
+        $arResult['prices'] = array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['value'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setActual($item['actual'])
                 ->setDepartDate(new \DateTime($item['depart_date']))
@@ -260,13 +266,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->execute($url, $options);
 
-        return array_map(function ($item) use ($currency)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['value'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setActual($item['actual'])
                 ->setDepartDate(new \DateTime($item['depart_date']))
@@ -303,17 +311,19 @@ class Tickets implements iService
             return new \DateTime($item);
         }, $response['data']['dates']);
 
-        $arResult['origins'] = array_map(function ($originArray)
+        $dataService = $this->getDataService();
+
+        $arResult['origins'] = array_map(function ($originArray) use ($dataService)
         {
             return [
-                'airport' => new Airport($originArray['iata']),
-                'prices'  => array_map(function ($item)
+                'airport' => $dataService->getAirport($originArray['iata']),
+                'prices'  => array_map(function ($item) use ($dataService)
                 {
                     $ticket = new Ticket();
                     $ticket
                         ->setValue($item['value'])
-                        ->setDestination(new Airport($item['destination']))
-                        ->setOrigin(new Airport($item['origin']))
+                        ->setDestination($dataService->getPlace($item['destination']))
+                        ->setOrigin($dataService->getPlace($item['origin']))
                         ->setCurrency('rub')
                         ->setActual($item['actual'])
                         ->setDepartDate(new \DateTime($item['depart_date']))
@@ -367,13 +377,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
-        return array_map(function ($item) use ($currency)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['price'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setDepartDate(new \DateTime($item['departure_at']))
                 ->setReturnDate(new \DateTime($item['return_at']))
@@ -419,13 +431,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
-        return array_map(function ($item) use ($currency, $destination, $origin)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $destination, $origin, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['price'])
-                ->setDestination(new Airport($destination))
-                ->setOrigin(new Airport($origin))
+                ->setDestination($dataService->getPlace($destination))
+                ->setOrigin($dataService->getPlace($origin))
                 ->setCurrency($currency)
                 ->setDepartDate(new \DateTime($item['departure_at']))
                 ->setReturnDate(new \DateTime($item['return_at']))
@@ -478,11 +492,13 @@ class Tickets implements iService
             return null;
         }
 
+        $dataService = $this->getDataService();
+
         $ticket = new Ticket();
         $ticket
             ->setValue($item[0]['price'])
-            ->setDestination(new Airport($destination))
-            ->setOrigin(new Airport($origin))
+            ->setDestination($dataService->getPlace($destination))
+            ->setOrigin($dataService->getPlace($origin))
             ->setCurrency($currency)
             ->setDepartDate(new \DateTime($item[0]['departure_at']))
             ->setReturnDate(new \DateTime($item[0]['return_at']))
@@ -515,13 +531,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
-        return array_map(function ($item) use ($currency)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['price'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency($currency)
                 ->setDepartDate(new \DateTime($item['departure_at']))
                 ->setReturnDate(new \DateTime($item['return_at']))
@@ -552,13 +570,15 @@ class Tickets implements iService
 
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
-        return array_map(function ($item)
+        $dataService = $this->getDataService();
+
+        return array_map(function ($item) use ($dataService)
         {
             $ticket = new Ticket();
             $ticket
                 ->setValue($item['price'])
-                ->setDestination(new Airport($item['destination']))
-                ->setOrigin(new Airport($item['origin']))
+                ->setDestination($dataService->getPlace($item['destination']))
+                ->setOrigin($dataService->getPlace($item['origin']))
                 ->setCurrency('rub')
                 ->setDepartDate(new \DateTime($item['departure_at']))
                 ->setReturnDate(new \DateTime($item['return_at']))
@@ -590,14 +610,16 @@ class Tickets implements iService
 
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
 
+        $dataService = $this->getDataService();
+
         foreach ($response['data'] as $direction => $rating)
         {
 
             list($origin, $destination) = explode('-', $direction);
 
             $arResult[] = [
-                'origin'      => new Airport($origin),
-                'destination' => new Airport($destination),
+                'origin'      => $dataService->getPlace($origin),
+                'destination' => $dataService->getPlace($destination),
                 'rating'      => $rating,
             ];
         }

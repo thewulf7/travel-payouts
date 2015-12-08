@@ -165,9 +165,8 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
             self::assertGreaterThan(0, $firstTicket->getValue());
             self::assertGreaterThan(0, $firstTicket->getDistance());
         }
-
         /** @var \travelPayouts\entity\Airport $airport */
-        $airport = $holidays['origins'][0]['airport'];
+        $airport = $holidays['origins'][1]['airport'];
 
         self::assertNotEmpty($airport->getIata());
         self::assertStringMatchesFormat('%c%c%c', $airport->getIata());
@@ -321,8 +320,8 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         foreach ($directions as $dir)
         {
-            self::assertInstanceOf('\travelPayouts\entity\Airport', $dir['origin']);
-            self::assertInstanceOf('\travelPayouts\entity\Airport', $dir['destination']);
+            self::assertNotEmpty($dir['origin']->getIata());
+            self::assertNotEmpty($dir['destination']->getIata());
             self::assertGreaterThan(0, $dir['rating']);
         }
 

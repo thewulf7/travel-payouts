@@ -3,6 +3,7 @@ namespace travelPayouts;
 
 
 use travelPayouts\components\Client;
+use travelPayouts\components\services;
 
 /**
  * Class Travel
@@ -11,6 +12,8 @@ use travelPayouts\components\Client;
  */
 class Travel
 {
+    use services;
+
     /**
      * @var Client
      */
@@ -70,62 +73,5 @@ class Travel
         $this->init();
 
         return $this;
-    }
-
-    /**
-     * Get tickets service
-     *
-     * @return services\Tickets
-     * @throws \RuntimeException
-     */
-    public function getTicketsService()
-    {
-        if (!($this->getClient() instanceof Client))
-        {
-            throw new \RuntimeException('No token specified');
-        }
-
-        $service = new \travelPayouts\services\Tickets();
-        $service->setClient($this->getClient());
-
-        return $service;
-    }
-
-    /**
-     * Get data service
-     *
-     * @return services\Data
-     * @throws \RuntimeException
-     */
-    public function getDataService()
-    {
-        if (!($this->getClient() instanceof Client))
-        {
-            throw new \RuntimeException('No token specified');
-        }
-
-        $service = new \travelPayouts\services\Data();
-        $service->setClient($this->getClient());
-
-        return $service;
-    }
-
-    /**
-     * Get flight service
-     *
-     * @return services\Flight
-     * @throws \RuntimeException
-     */
-    public function getFlightService()
-    {
-        if (!($this->getClient() instanceof Client))
-        {
-            throw new \RuntimeException('No token specified');
-        }
-
-        $service = new \travelPayouts\services\Flight();
-        $service->setClient($this->getClient());
-
-        return $service;
     }
 }
