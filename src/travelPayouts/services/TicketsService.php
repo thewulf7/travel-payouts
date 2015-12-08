@@ -12,7 +12,7 @@ use travelPayouts\entity\Ticket;
  *
  * @package travelPayouts
  */
-class Tickets extends AbstractService implements iService
+class TicketsService extends AbstractService implements iService
 {
     /**
      *  Class of service

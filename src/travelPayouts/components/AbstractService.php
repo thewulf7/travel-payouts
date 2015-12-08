@@ -4,5 +4,6 @@ namespace travelPayouts\components;
 
 abstract class AbstractService
 {
-    use services;
+    use ServiceInjector;
+
 }

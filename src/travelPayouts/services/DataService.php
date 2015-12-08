@@ -14,7 +14,7 @@ use travelPayouts\entity\Country;
  *
  * @package travelPayouts\services
  */
-class Data extends AbstractService implements iService
+class DataService extends AbstractService implements iService
 {
     /**
      * Include only once data from JSON

@@ -3,7 +3,11 @@ namespace travelPayouts;
 
 
 use travelPayouts\components\Client;
-use travelPayouts\components\services;
+use travelPayouts\components\ServiceInjector;
+use travelPayouts\services\TicketsService;
+use travelPayouts\services\DataService;
+use travelPayouts\services\FlightService;
+use travelPayouts\services\PartnerService;
 
 /**
  * Class Travel
@@ -12,7 +16,7 @@ use travelPayouts\components\services;
  */
 class Travel
 {
-    use services;
+    use ServiceInjector;
 
     /**
      * @var Client

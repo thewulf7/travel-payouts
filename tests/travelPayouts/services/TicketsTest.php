@@ -5,13 +5,15 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var \travelPayouts\services\Tickets
+     * @var \travelPayouts\services\TicketsService
      */
     protected $service;
 
     public function setUp()
     {
-        $travel        = new \travelPayouts\Travel('321d6a221f8926b5ec41ae89a3b2ae7b');
+        $config = require(__DIR__ . '/../../../src/travelPayouts/config/tests.php');
+        $travel        = new \travelPayouts\Travel($config['token']);
+
         $this->service = $travel->getTicketsService();
 
         date_default_timezone_set('UTC');

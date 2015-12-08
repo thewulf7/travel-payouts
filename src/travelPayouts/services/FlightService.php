@@ -11,7 +11,7 @@ use travelPayouts\components\Client;
  *
  * @package travelPayouts\services
  */
-class Flight extends AbstractService implements iService
+class FlightService extends AbstractService implements iService
 {
     /**
      * @var Client
