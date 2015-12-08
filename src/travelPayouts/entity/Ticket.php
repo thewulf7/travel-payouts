@@ -10,12 +10,12 @@ namespace travelPayouts\entity;
 class Ticket
 {
     /**
-     * @var Airport
+     * @var City|Airport
      */
     private $_origin;
 
     /**
-     * @var Airport
+     * @var City|Airport
      */
     private $_destination;
 
@@ -87,7 +87,7 @@ class Ticket
     /**
      * Get Origin
      *
-     * @return Airport
+     * @return City|Airport
      */
     public function getOrigin()
     {
@@ -97,7 +97,7 @@ class Ticket
     /**
      * Set origin
      *
-     * @param Airport $origin
+     * @param City|Airport $origin
      *
      * @return Ticket
      */
@@ -111,7 +111,7 @@ class Ticket
     /**
      * Get Destination
      *
-     * @return Airport
+     * @return City|Airport
      */
     public function getDestination()
     {
@@ -121,7 +121,7 @@ class Ticket
     /**
      * Set destination
      *
-     * @param Airport $destination
+     * @param City|Airport $destination
      *
      * @return Ticket
      */
