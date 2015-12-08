@@ -1,5 +1,5 @@
 <?php
-namespace travelPayouts\components;
+namespace thewulf7\travelPayouts\components;
 
 
 abstract class AbstractService

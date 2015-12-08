@@ -1,16 +1,16 @@
 <?php
-namespace travelPayouts\services;
+namespace thewulf7\travelPayouts\services;
 
 
-use travelPayouts\components\AbstractService;
-use travelPayouts\components\Client;
-use travelPayouts\components\iService;
-use travelPayouts\entity\Ticket;
+use thewulf7\travelPayouts\components\AbstractService;
+use thewulf7\travelPayouts\components\Client;
+use thewulf7\travelPayouts\components\iService;
+use thewulf7\travelPayouts\entity\Ticket;
 
 /**
  * Tickets service
  *
- * @package travelPayouts
+ * @package thewulf7\travelPayouts
  */
 class TicketsService extends AbstractService implements iService
 {
@@ -30,12 +30,12 @@ class TicketsService extends AbstractService implements iService
     const FIRST_CLASS = 2;
 
     /**
-     * @var \travelPayouts\components\Client
+     * @var \thewulf7\travelPayouts\components\Client
      */
     private $_client;
 
     /**
-     * @return \travelPayouts\components\Client
+     * @return \thewulf7\travelPayouts\components\Client
      */
     public function getClient()
     {
@@ -592,6 +592,8 @@ class TicketsService extends AbstractService implements iService
     }
 
     /**
+     * Returns the routes that an airline flies and sorts them by popularity.
+     *
      * @param string $airline_code Company IATA code in uppercase.
      * @param int    $limit        Number of records. Default value: 30. Max value: 1000
      *

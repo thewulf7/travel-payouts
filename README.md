@@ -1,6 +1,6 @@
 # Travel Payouts PHP SDK
 
-##Installation
+### Usage example
 
 ###Composer
 

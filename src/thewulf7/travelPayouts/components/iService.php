@@ -1,5 +1,5 @@
 <?php
-namespace travelPayouts\components;
+namespace thewulf7\travelPayouts\components;
 
 
 interface iService
@@ -10,7 +10,7 @@ interface iService
     const TICKETS_SERVICE = 'TicketsService';
 
     /**
-     * @return \travelPayouts\components\Client
+     * @return \thewulf7\travelPayouts\components\Client
      */
     public function getClient();
 

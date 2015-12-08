@@ -1,15 +1,15 @@
 <?php
-namespace travelPayouts\services;
+namespace thewulf7\travelPayouts\services;
 
 
-use travelPayouts\components\AbstractService;
-use travelPayouts\components\iService;
-use travelPayouts\components\Client;
+use thewulf7\travelPayouts\components\AbstractService;
+use thewulf7\travelPayouts\components\iService;
+use thewulf7\travelPayouts\components\Client;
 
 /**
  * Class Flight
  *
- * @package travelPayouts\services
+ * @package thewulf7\travelPayouts\services
  */
 class FlightService extends AbstractService implements iService
 {
@@ -118,7 +118,7 @@ class FlightService extends AbstractService implements iService
     }
 
     /**
-     * @return \travelPayouts\components\Client
+     * @return \thewulf7\travelPayouts\components\Client
      */
     public function getClient()
     {

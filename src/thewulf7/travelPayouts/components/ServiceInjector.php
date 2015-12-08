@@ -1,10 +1,10 @@
 <?php
-namespace travelPayouts\components;
+namespace thewulf7\travelPayouts\components;
 
-use travelPayouts\services\TicketsService;
-use travelPayouts\services\DataService;
-use travelPayouts\services\FlightService;
-use travelPayouts\services\PartnerService;
+use thewulf7\travelPayouts\services\TicketsService;
+use thewulf7\travelPayouts\services\DataService;
+use thewulf7\travelPayouts\services\FlightService;
+use thewulf7\travelPayouts\services\PartnerService;
 
 /**
  * Class ServiceInjector
@@ -14,7 +14,7 @@ use travelPayouts\services\PartnerService;
  * @method PartnerService getPartnerService()
  * @method TicketsService getTicketsService()
  *
- * @package travelPayouts\components
+ * @package thewulf7\travelPayouts\components
  */
 trait ServiceInjector
 {

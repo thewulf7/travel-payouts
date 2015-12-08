@@ -1,13 +1,13 @@
 <?php
 
-namespace travelPayouts\components;
+namespace thewulf7\travelPayouts\components;
 
 use GuzzleHttp\Client as HttpClient;
 
 /**
  * Class Client
  *
- * @package travelPayouts\components
+ * @package thewulf7\travelPayouts\components
  */
 class Client
 {

@@ -1,13 +1,13 @@
 <?php
-namespace travelPayouts\entity;
+namespace thewulf7\travelPayouts\entity;
 
 
 /**
- * Class City
+ * Class Country
  *
- * @package travelPayouts\entity
+ * @package thewulf7\travelPayouts\entity
  */
-class City
+class Country
 {
     /**
      * @var string
@@ -20,24 +20,14 @@ class City
     private $_name;
 
     /**
-     * @var array
-     */
-    private $_coordinates;
-
-    /**
      * @var string
      */
-    private $_timeZone;
+    private $_currency;
 
     /**
      * @var array
      */
     private $_nameTranslations;
-
-    /**
-     * @var Country
-     */
-    private $_country;
 
     /**
      * @param $code
@@ -65,7 +55,7 @@ class City
      *
      * @param string $iata
      *
-     * @return City
+     * @return Country
      */
     public function setIata($iata)
     {
@@ -89,7 +79,7 @@ class City
      *
      * @param string $name
      *
-     * @return City
+     * @return Country
      */
     public function setName($name)
     {
@@ -99,49 +89,25 @@ class City
     }
 
     /**
-     * Get Coordinates
-     *
-     * @return array
-     */
-    public function getCoordinates()
-    {
-        return $this->_coordinates;
-    }
-
-    /**
-     * Set coordinates
-     *
-     * @param array $coordinates
-     *
-     * @return City
-     */
-    public function setCoordinates($coordinates)
-    {
-        $this->_coordinates = $coordinates;
-
-        return $this;
-    }
-
-    /**
-     * Get TimeZone
+     * Get Currency
      *
      * @return string
      */
-    public function getTimeZone()
+    public function getCurrency()
     {
-        return $this->_timeZone;
+        return $this->_currency;
     }
 
     /**
-     * Set timeZone
+     * Set currency
      *
-     * @param string $timeZone
+     * @param string $currency
      *
-     * @return City
+     * @return Country
      */
-    public function setTimeZone($timeZone)
+    public function setCurrency($currency)
     {
-        $this->_timeZone = $timeZone;
+        $this->_currency = $currency;
 
         return $this;
     }
@@ -161,35 +127,11 @@ class City
      *
      * @param array $nameTranslations
      *
-     * @return City
+     * @return Country
      */
     public function setNameTranslations($nameTranslations)
     {
         $this->_nameTranslations = $nameTranslations;
-
-        return $this;
-    }
-
-    /**
-     * Get Country
-     *
-     * @return Country
-     */
-    public function getCountry()
-    {
-        return $this->_country;
-    }
-
-    /**
-     * Set country
-     *
-     * @param Country $country
-     *
-     * @return City
-     */
-    public function setCountry($country)
-    {
-        $this->_country = $country;
 
         return $this;
     }

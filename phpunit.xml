@@ -18,7 +18,7 @@
 
     <testsuites>
         <testsuite name="thewulf7 travel-payouts">
-            <directory>tests/travelPayouts</directory>
+            <directory>tests/thewulf7/travelPayouts</directory>
         </testsuite>
     </testsuites>
 </phpunit>
