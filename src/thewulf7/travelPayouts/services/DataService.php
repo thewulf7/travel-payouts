@@ -256,7 +256,7 @@ class DataService extends AbstractService implements iService
 
         if(!$oResult)
         {
-            $oResult = $this->getAirport($code)->getCity()->getIata();
+            $oResult = $this->getAirport($code);
         }
 
         return $oResult;
