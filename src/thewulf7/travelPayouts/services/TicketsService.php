@@ -512,8 +512,8 @@ class TicketsService extends AbstractService implements iService
     /**
      * Cheapest tickets grouped by month
      *
-     * @param string $origin      City IATA code.
-     * @param string $destination City IATA code.
+     * @param string $origin      City IATA code or country code.
+     * @param string $destination City IATA code or country code.
      * @param string $currency    Currency of prices. Default value is rub.
      *
      * @return array Ticket[]
