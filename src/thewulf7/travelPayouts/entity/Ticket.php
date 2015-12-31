@@ -1,5 +1,6 @@
 <?php
 namespace thewulf7\travelPayouts\entity;
+use thewulf7\travelPayouts\services\TicketsService;
 
 
 /**
@@ -442,6 +443,57 @@ class Ticket
         $this->_flightNumber = $flightNumber;
 
         return $this;
+    }
+
+    public function getUrl($type = 'aviasales')
+    {
+        $url = '';
+
+        $getTripClass = function ($class)
+        {
+            $ticketClass = 'Y';
+
+            switch ($class)
+            {
+                case TicketsService::BUSINESS_CLASS:
+                    $ticketClass = 'C';
+                    break;
+                case TicketsService::FIRST_CLASS:
+                    $ticketClass = 'F';
+                    break;
+                case TicketsService::ECONOMY_CLASS:
+                    $ticketClass = 'Y';
+                    break;
+            }
+
+            return $ticketClass;
+        };
+
+        switch ($type)
+        {
+            case 'aviasales':
+                $url .= 'http://search.aviasales.ru/';
+                $url .= mb_strtoupper($this->getOrigin()->getIata()) . $this->getDepartDate()->format('dm');
+                $url .= mb_strtolower($this->getDestination()->getIata()) . $this->getReturnDate()->format('dm');
+                $url .= '1';
+                break;
+            case 'jetradar':
+                $url .= 'http://www.jetradar.com/searches/';
+                $origin = $this->getOrigin();
+                $dest   = $this->getDestination();
+
+                $url .= $origin instanceof Airport ? 'A' : 'C';
+                $url .= mb_strtoupper($origin->getIata()) . $this->getDepartDate()->format('dm');
+                $url .= $dest instanceof Airport ? 'A' : 'C';
+                $url .= mb_strtolower($dest->getIata()) . $this->getReturnDate()->format('dm');
+                $url .= $getTripClass($this->getTripClass()) . '1';
+                break;
+            default:
+                throw new \InvalidArgumentException('Type of website not found');
+                break;
+        }
+
+        return $url;
     }
 
 }
