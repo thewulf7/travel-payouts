@@ -24,7 +24,7 @@ Then you can use it get different services
 
 ###Tickets service
 ```php
-$ticketService = $travel->getTicketService();
+$ticketService = $travel->getTicketsService();
 //Get flights found by our users in the last 48 hours from LED to MOW. Return array consists of thewulf7\travelPayouts\Ticket objects.
 $flights = $ticketService->getLatestPrices('LED', 'MOW', false, 'rub', 'year', 1, 10);
 ```
