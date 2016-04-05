@@ -315,24 +315,25 @@ class TicketsService extends AbstractService implements iService
 
         $arResult['origins'] = array_map(function ($originArray) use ($dataService)
         {
+            $place = $dataService->getPlace($originArray['iata']);
             return [
-                'airport' => $dataService->getAirport($originArray['iata']),
-                'prices'  => array_map(function ($item) use ($dataService)
+                'origin' => $place,
+                'prices'  => array_map(function ($item) use ($dataService, $place)
                 {
                     $ticket = new Ticket();
                     $ticket
-                        ->setValue($item['value'])
+                        ->setValue($item['price'])
                         ->setDestination($dataService->getPlace($item['destination']))
-                        ->setOrigin($dataService->getPlace($item['origin']))
+                        ->setOrigin($place)
                         ->setCurrency('rub')
-                        ->setActual($item['actual'])
+                        ->setActual(isset($item['actual']) ? $item['actual'] : true)
                         ->setDepartDate(new \DateTime($item['depart_date']))
                         ->setReturnDate(new \DateTime($item['return_date']))
-                        ->setFoundAt(new \DateTime($item['found_at']))
-                        ->setNumberOfChanges($item['number_of_changes'])
-                        ->setDistance($item['distance'])
-                        ->setShowToAffiliates($item['show_to_affiliates'])
-                        ->setTripClass($item['trip_class']);
+                        ->setFoundAt(new \DateTime(isset($item['found_at']) ? $item['found_at'] : ''))
+                        ->setNumberOfChanges(isset($item['number_of_changes']) ? $item['number_of_changes'] : 0)
+                        ->setDistance(isset($item['distance']) ? $item['distance'] : false)
+                        ->setShowToAffiliates(isset($item['show_to_affiliates']) ? $item['show_to_affiliates'] : false)
+                        ->setTripClass(isset($item['trip_class']) ? $item['trip_class'] : false);
 
                     return $ticket;
                 }, $originArray['prices']),

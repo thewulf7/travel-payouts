@@ -23,7 +23,7 @@ class PartnerServiceTest extends \PHPUnit_Framework_TestCase
         $balance = $this->service->getBalance();
 
         self::assertGreaterThanOrEqual(0, $balance['balance']);
-        self::assertContains($balance['currency'], ['RUB', 'USD', 'EUR']);
+        self::assertContains($balance['currency'], ['rub', 'usd', 'eur']);
     }
 
     public function testGetPayments()
