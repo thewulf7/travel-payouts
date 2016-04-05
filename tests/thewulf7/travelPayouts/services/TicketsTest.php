@@ -165,13 +165,16 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
             $firstTicket = $holidays['origins'][0]['prices'][0];
 
             self::assertGreaterThan(0, $firstTicket->getValue());
-            self::assertGreaterThan(0, $firstTicket->getDistance());
+            if($firstTicket->getDistance() !== false)
+            {
+                self::assertGreaterThan(0, $firstTicket->getDistance());
+            }
         }
-        /** @var \thewulf7\travelPayouts\entity\Airport $airport */
-        $airport = $holidays['origins'][1]['airport'];
+        /** @var \thewulf7\travelPayouts\entity\Airport|\thewulf7\travelPayouts\entity\City $place */
+        $place = $holidays['origins'][1]['origin'];
 
-        self::assertNotEmpty($airport->getIata());
-        self::assertStringMatchesFormat('%c%c%c', $airport->getIata());
+        self::assertNotEmpty($place->getIata());
+        self::assertStringMatchesFormat('%c%c%c', $place->getIata());
     }
 
     public function testGetCalendar()
