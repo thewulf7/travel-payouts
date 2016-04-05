@@ -373,8 +373,8 @@ class DataService extends AbstractService implements iService
      */
     public static function whereAmI($ip, $locale = 'ru', $funcName = 'useriata')
     {
-        $uri    = 'http://www.travelpayouts.com/whereami';
         $locale = in_array($locale, ['en', 'ru', 'de', 'fr', 'it', 'pl', 'th'], true) ? $locale : 'ru';
+        $uri    = "http://www.travelpayouts.com/whereami?locale={$locale}";
 
         if (!filter_var($ip, FILTER_VALIDATE_IP))
         {
@@ -391,7 +391,6 @@ class DataService extends AbstractService implements iService
         );
 
         $res = $client->get($uri, [
-            'locale'   => $locale,
             'callback' => $funcName,
             'ip'       => $ip,
         ]);
