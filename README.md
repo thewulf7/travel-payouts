@@ -1,5 +1,7 @@
 # Travel Payouts PHP SDK
 
+[ ![Codeship Status for thewulf7/travel-payouts](https://codeship.com/projects/07bb5a60-7c95-0133-242d-26ef8f2c3d05/status?branch=master)](https://codeship.com/projects/119977)
+
 ## Installation
 
 ###Composer
