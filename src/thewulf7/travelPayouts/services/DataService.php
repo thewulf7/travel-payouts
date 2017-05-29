@@ -3,8 +3,8 @@ namespace thewulf7\travelPayouts\services;
 
 
 use thewulf7\travelPayouts\components\AbstractService;
-use thewulf7\travelPayouts\components\iService;
 use thewulf7\travelPayouts\components\Client;
+use thewulf7\travelPayouts\components\iService;
 use thewulf7\travelPayouts\entity\Airport;
 use thewulf7\travelPayouts\entity\City;
 use thewulf7\travelPayouts\entity\Country;
@@ -37,41 +37,109 @@ class DataService extends AbstractService implements iService
     private $_client;
 
     /**
-     * Get countries
+     * Detect city and nearest airport of the user with given ip
      *
-     * @param bool $simpleArray
+     * @param        $ip
+     * @param string $locale
+     * @param string $funcName
      *
-     * @return array Country[]
+     * @return array
+     */
+    public static function whereAmI($ip, $locale = 'ru', $funcName = 'useriata')
+    {
+        $locale = in_array($locale, ['en', 'ru', 'de', 'fr', 'it', 'pl', 'th'], true) ? $locale : 'ru';
+        $uri    = "http://www.travelpayouts.com/whereami?locale={$locale}";
+
+        if (!filter_var($ip, FILTER_VALIDATE_IP))
+        {
+            throw new \RuntimeException($ip . ' is not a valid ip');
+        }
+
+        $client = new \GuzzleHttp\Client(
+            [
+                'headers' =>
+                    [
+                        'Content-Type' => 'application/json',
+                    ],
+            ]
+        );
+
+        $res = $client->get($uri, [
+            'callback' => $funcName,
+            'ip'       => $ip,
+        ]);
+
+        return json_decode((string)$res->getBody(), true);
+    }
+
+    /**
+     * Get currency rates to rouble
+     *
+     * @return array
+     */
+    public static function getCurrencies()
+    {
+        $uri = 'http://yasen.aviasales.ru/adaptors/currency.json';
+
+        $client = new \GuzzleHttp\Client(
+            [
+                'headers' =>
+                    [
+                        'Content-Type' => 'application/json',
+                    ],
+            ]
+        );
+
+        return json_decode((string)$client->get($uri)->getBody(), true);
+    }
+
+    /**
+     * Get City or Airport
+     *
+     * @param $code
+     *
+     * @return null|Airport|City
+     */
+    public function getPlace($code)
+    {
+        $oResult = $this->getCity($code);
+
+        if (!$oResult)
+        {
+            $oResult = $this->getAirport($code);
+        }
+
+        return $oResult;
+    }
+
+    /**
+     * @param $code
+     *
+     * @return null|City
      * @throws \RuntimeException
      */
-    public function getCountries($simpleArray = false)
+    public function getCity($code)
     {
-        $fileName = 'countries.json';
+        $jsonArray = $this->getCities(true);
 
-        $sResult = self::getPath($fileName);
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if (!$sResult)
+        if ($key === false)
         {
-            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall the package.");
+            return null;
         }
 
-        if (count($this->data['countries']) === 0)
-        {
-            $this->data['countries'] = json_decode(file_get_contents($sResult), true);
-        }
+        $model = new City();
 
-        return $simpleArray === true ? $this->data['countries'] : array_map(function ($country)
-        {
-            $model = new Country();
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setCoordinates($jsonArray[$key]['coordinates'])
+            ->setTimeZone($jsonArray[$key]['time_zone'])
+            ->setCountry($this->getCountry($jsonArray[$key]['country_code']));
 
-            $model
-                ->setIata($country['code'])
-                ->setName($country['name'])
-                ->setNameTranslations($country['name_translations'])
-                ->setCurrency($country['currency']);
-
-            return $model;
-        }, $this->data['countries']);
+        return $model;
     }
 
     /**
@@ -115,6 +183,103 @@ class DataService extends AbstractService implements iService
     }
 
     /**
+     * @param $code
+     *
+     * @return null|Country
+     * @throws \RuntimeException
+     */
+    public function getCountry($code)
+    {
+        $jsonArray = $this->getCountries(true);
+
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
+
+        if ($key === false)
+        {
+            return null;
+        }
+        $model = new Country();
+
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setCurrency($jsonArray[$key]['currency']);
+
+        return $model;
+    }
+
+    /**
+     * Get countries
+     *
+     * @param bool $simpleArray
+     *
+     * @return array Country[]
+     * @throws \RuntimeException
+     */
+    public function getCountries($simpleArray = false)
+    {
+        $fileName = 'countries.json';
+
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult)
+        {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall the package.");
+        }
+
+        if (count($this->data['countries']) === 0)
+        {
+            $this->data['countries'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $simpleArray === true ? $this->data['countries'] : array_map(function ($country)
+        {
+            $model = new Country();
+
+            $model
+                ->setIata($country['code'])
+                ->setName($country['name'])
+                ->setNameTranslations($country['name_translations'])
+                ->setCurrency($country['currency']);
+
+            return $model;
+        }, $this->data['countries']);
+    }
+
+    /**
+     * Get Airport object by code
+     *
+     * @param $code
+     *
+     * @return null|Airport
+     * @throws \RuntimeException
+     */
+    public function getAirport($code)
+    {
+        $jsonArray = $this->getAirports(true);
+
+        $key = array_search($code, array_column($jsonArray, 'code'), true);
+
+        if ($key === false)
+        {
+            return null;
+        }
+
+        $model = new Airport();
+
+        $model
+            ->setIata($jsonArray[$key]['code'])
+            ->setName($jsonArray[$key]['name'])
+            ->setCoordinates($jsonArray[$key]['coordinates'])
+            ->setNameTranslations($jsonArray[$key]['name_translations'])
+            ->setTimeZone($jsonArray[$key]['time_zone'])
+            ->setCity($this->getCity($jsonArray[$key]['city_code']));
+
+        return $model;
+    }
+
+    /**
      * Get airports
      *
      * @param bool $simpleArray
@@ -155,111 +320,17 @@ class DataService extends AbstractService implements iService
     }
 
     /**
-     * Get Airport object by code
+     * Get Path
      *
-     * @param $code
+     * @param $fileName
      *
-     * @return null|Airport
-     * @throws \RuntimeException
+     * @return bool|string
      */
-    public function getAirport($code)
+    private static function getPath($fileName)
     {
-        $jsonArray = $this->getAirports(true);
+        $path = __DIR__ . '/../data/' . $fileName;
 
-        $key = array_search($code, array_column($jsonArray, 'code'), true);
-
-        if ($key === false)
-        {
-            return null;
-        }
-
-        $model = new Airport();
-
-        $model
-            ->setIata($jsonArray[$key]['code'])
-            ->setName($jsonArray[$key]['name'])
-            ->setCoordinates($jsonArray[$key]['coordinates'])
-            ->setNameTranslations($jsonArray[$key]['name_translations'])
-            ->setTimeZone($jsonArray[$key]['time_zone'])
-            ->setCity($this->getCity($jsonArray[$key]['city_code']));
-
-        return $model;
-    }
-
-    /**
-     * @param $code
-     *
-     * @return null|City
-     * @throws \RuntimeException
-     */
-    public function getCity($code)
-    {
-        $jsonArray = $this->getCities(true);
-
-        $key = array_search($code, array_column($jsonArray, 'code'), true);
-
-        if ($key === false)
-        {
-            return null;
-        }
-
-        $model = new City();
-
-        $model
-            ->setIata($jsonArray[$key]['code'])
-            ->setName($jsonArray[$key]['name'])
-            ->setNameTranslations($jsonArray[$key]['name_translations'])
-            ->setCoordinates($jsonArray[$key]['coordinates'])
-            ->setTimeZone($jsonArray[$key]['time_zone'])
-            ->setCountry($this->getCountry($jsonArray[$key]['country_code']));
-
-        return $model;
-    }
-
-    /**
-     * @param $code
-     *
-     * @return null|Country
-     * @throws \RuntimeException
-     */
-    public function getCountry($code)
-    {
-        $jsonArray = $this->getCountries(true);
-
-        $key = array_search($code, array_column($jsonArray, 'code'), true);
-
-        if ($key === false)
-        {
-            return null;
-        }
-        $model = new Country();
-
-        $model
-            ->setIata($jsonArray[$key]['code'])
-            ->setName($jsonArray[$key]['name'])
-            ->setNameTranslations($jsonArray[$key]['name_translations'])
-            ->setCurrency($jsonArray[$key]['currency']);
-
-        return $model;
-    }
-
-    /**
-     * Get City or Airport
-     *
-     * @param $code
-     *
-     * @return null|Airport|City
-     */
-    public function getPlace($code)
-    {
-        $oResult = $this->getCity($code);
-
-        if(!$oResult)
-        {
-            $oResult = $this->getAirport($code);
-        }
-
-        return $oResult;
+        return file_exists($path) ? $path : false;
     }
 
     /**
@@ -363,63 +434,6 @@ class DataService extends AbstractService implements iService
     }
 
     /**
-     * Detect city and nearest airport of the user with given ip
-     *
-     * @param        $ip
-     * @param string $locale
-     * @param string $funcName
-     *
-     * @return array
-     */
-    public static function whereAmI($ip, $locale = 'ru', $funcName = 'useriata')
-    {
-        $locale = in_array($locale, ['en', 'ru', 'de', 'fr', 'it', 'pl', 'th'], true) ? $locale : 'ru';
-        $uri    = "http://www.travelpayouts.com/whereami?locale={$locale}";
-
-        if (!filter_var($ip, FILTER_VALIDATE_IP))
-        {
-            throw new \RuntimeException($ip . ' is not a valid ip');
-        }
-
-        $client = new \GuzzleHttp\Client(
-            [
-                'headers' =>
-                    [
-                        'Content-Type' => 'application/json',
-                    ],
-            ]
-        );
-
-        $res = $client->get($uri, [
-            'callback' => $funcName,
-            'ip'       => $ip,
-        ]);
-
-        return json_decode((string)$res->getBody(), true);
-    }
-
-    /**
-     * Get currency rates to rouble
-     *
-     * @return array
-     */
-    public static function getCurrencies()
-    {
-        $uri = 'http://engine.aviasales.ru/currencies/all_currencies_rates';
-
-        $client = new \GuzzleHttp\Client(
-            [
-                'headers' =>
-                    [
-                        'Content-Type' => 'application/json',
-                    ],
-            ]
-        );
-
-        return json_decode((string)$client->get($uri)->getBody(), true);
-    }
-
-    /**
      * @return \thewulf7\travelPayouts\components\Client
      */
     public function getClient()
@@ -439,19 +453,5 @@ class DataService extends AbstractService implements iService
         $this->_client->setApiVersion('data');
 
         return $this;
-    }
-
-    /**
-     * Get Path
-     *
-     * @param $fileName
-     *
-     * @return bool|string
-     */
-    private static function getPath($fileName)
-    {
-        $path = __DIR__ . '/../data/' . $fileName;
-
-        return file_exists($path) ? $path : false;
     }
 }

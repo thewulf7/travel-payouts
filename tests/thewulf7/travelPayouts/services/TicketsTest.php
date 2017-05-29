@@ -214,7 +214,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $returnA = [
             $month->modify('last day of previous month')->getTimestamp(),
-            $month->modify('+1 month')->modify('first day of this month')->getTimestamp(),
+            $month->modify('last day of next month')->getTimestamp(),
         ];
 
         $tickets = $this->service->getCheap($origin, $destination, $depart, $return);
@@ -253,7 +253,7 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
 
         $returnA = [
             $month->modify('last day of previous month')->getTimestamp(),
-            $month->modify('+1 month')->modify('first day of this month')->getTimestamp(),
+            $month->modify('last day of next month')->getTimestamp(),
         ];
 
         /** @var \thewulf7\travelPayouts\entity\Ticket $ticket */
