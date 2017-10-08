@@ -84,35 +84,13 @@ class Client
         if ($statusCode !== 200)
         {
             $strBody = json_decode((string)$body, true);
-            throw new \RuntimeException("{$statusCode}:{$strBody['message']}");
+
+            $message = isset($strBody['message']) ? $strBody['message'] : 'unknown';
+
+            throw new \RuntimeException("{$statusCode}:{$message}");
         }
 
         return $this->makeApiResponse($body);
-    }
-
-    /**
-     * @param $jsonString
-     *
-     * @return mixed
-     * @throws \RuntimeException
-     */
-    private function makeApiResponse($jsonString)
-    {
-        $data = json_decode($jsonString, true);
-        if (!$data)
-        {
-            throw new \RuntimeException("Unable to decode json response: $jsonString");
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getClient()
-    {
-        return $this->_client;
     }
 
     /**
@@ -133,6 +111,31 @@ class Client
         $this->_apiVersion = $apiVersion;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClient()
+    {
+        return $this->_client;
+    }
+
+    /**
+     * @param $jsonString
+     *
+     * @return mixed
+     * @throws \RuntimeException
+     */
+    private function makeApiResponse($jsonString)
+    {
+        $data = json_decode($jsonString, true);
+        if (!$data)
+        {
+            throw new \RuntimeException("Unable to decode json response: $jsonString");
+        }
+
+        return $data;
     }
 
     /**
