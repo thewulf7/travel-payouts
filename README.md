@@ -4,7 +4,7 @@
 
 ## Installation
 
-###Composer
+### Composer
 
 ```
 composer require thewulf7/travel-payouts
@@ -14,7 +14,7 @@ or add to your composer.json file, in the "require" section
 "thewulf7/travel-payouts": "1.1.*"
 ```
 
-##Usage
+## Usage
 
  First of all create main Travel object and pass your token in it 
 ```php
@@ -24,7 +24,7 @@ $travel = new Travel('YOUR TOKEN HERE');
 ```
 Then you can use it get different services
 
-###Tickets service
+### Tickets service
 ```php
 $ticketService = $travel->getTicketsService();
 //Get flights found by our users in the last 48 hours from LED to MOW. Return array consists of thewulf7\travelPayouts\Ticket objects.
@@ -33,7 +33,7 @@ $flights = $ticketService->getLatestPrices('LED', 'MOW', false, 'rub', 'year', 1
 
 See [documentation](https://github.com/thewulf7/travel-payouts/wiki/TicketService)
 
-###Flight service
+### Flight service
 ```php
 $flightService = $travel->getFlightService();
 $flightService
@@ -46,14 +46,14 @@ $searchData    = $flightService->search('ru', 'Y');
 $searchResults = $flightService->getSearchResults($searchData['search_id']);
 ```
 
-###Partner service
+### Partner service
 ```php
 $partnerService = $travel->getPartnerService();
 //get user balance and currency of the balance
 list($balance, $currency) = $partnerService->getBalance();
 ```
 
-###Data service
+### Data service
 ```php
 $dataService = $travel->getDataService();
 //get all airports in the system
