@@ -153,29 +153,29 @@ class TicketsTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testGetHolidaysByRoute()
-    {
-        $holidays = $this->service->getHolidaysByRoute();
+//     public function testGetHolidaysByRoute()
+//     {
+//         $holidays = $this->service->getHolidaysByRoute();
 
-        self::assertNotEmpty($holidays['title']);
-        self::assertNotEmpty($holidays['dates']);
+//         self::assertNotEmpty($holidays['title']);
+//         self::assertNotEmpty($holidays['dates']);
 
-        if (time() <= $holidays['dates']['to']->getTimestamp())
-        {
-            $firstTicket = $holidays['origins'][0]['prices'][0];
+//         if (time() <= $holidays['dates']['to']->getTimestamp())
+//         {
+//             $firstTicket = $holidays['origins'][0]['prices'][0];
 
-            self::assertGreaterThan(0, $firstTicket->getValue());
-            if($firstTicket->getDistance() !== false)
-            {
-                self::assertGreaterThan(0, $firstTicket->getDistance());
-            }
-        }
-        /** @var \thewulf7\travelPayouts\entity\Airport|\thewulf7\travelPayouts\entity\City $place */
-        $place = $holidays['origins'][1]['origin'];
+//             self::assertGreaterThan(0, $firstTicket->getValue());
+//             if($firstTicket->getDistance() !== false)
+//             {
+//                 self::assertGreaterThan(0, $firstTicket->getDistance());
+//             }
+//         }
+//         /** @var \thewulf7\travelPayouts\entity\Airport|\thewulf7\travelPayouts\entity\City $place */
+//         $place = $holidays['origins'][1]['origin'];
 
-        self::assertNotEmpty($place->getIata());
-        self::assertStringMatchesFormat('%c%c%c', $place->getIata());
-    }
+//         self::assertNotEmpty($place->getIata());
+//         self::assertStringMatchesFormat('%c%c%c', $place->getIata());
+//     }
 
     public function testGetCalendar()
     {
