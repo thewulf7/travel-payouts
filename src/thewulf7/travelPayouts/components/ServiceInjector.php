@@ -1,18 +1,23 @@
 <?php
+
 namespace thewulf7\travelPayouts\components;
 
-use thewulf7\travelPayouts\services\TicketsService;
 use thewulf7\travelPayouts\services\DataService;
 use thewulf7\travelPayouts\services\FlightService;
+use thewulf7\travelPayouts\services\HotelsSearchService;
+use thewulf7\travelPayouts\services\HotelsService;
 use thewulf7\travelPayouts\services\PartnerService;
+use thewulf7\travelPayouts\services\TicketsService;
 
 /**
  * Class ServiceInjector
  *
- * @method DataService    getDataService()
- * @method FlightService  getFlightService()
- * @method PartnerService getPartnerService()
- * @method TicketsService getTicketsService()
+ * @method DataService         getDataService()
+ * @method FlightService       getFlightService()
+ * @method PartnerService      getPartnerService()
+ * @method TicketsService      getTicketsService()
+ * @method HotelsService       getHotelsService()
+ * @method HotelsSearchService getHotelsSearchService()
  *
  * @package thewulf7\travelPayouts\components
  */
@@ -32,8 +37,7 @@ trait ServiceInjector
      */
     public function __call($name, $args)
     {
-        if (array_key_exists($name, $this->getServiceMap()))
-        {
+        if (array_key_exists($name, $this->getServiceMap())) {
             return $this->getService($this->_serviceMap[$name]);
         }
 
@@ -45,8 +49,7 @@ trait ServiceInjector
      */
     private function getServiceMap()
     {
-        if (count($this->_serviceMap) === 0)
-        {
+        if (count($this->_serviceMap) === 0) {
             $services = require(__DIR__ . '/../config/services.php');
 
             foreach ($services as $serviceName => $serviceClass) {
@@ -66,8 +69,7 @@ trait ServiceInjector
     private function getService($serviceName)
     {
 
-        if (!($this->getClient() instanceof Client))
-        {
+        if (!($this->getClient() instanceof Client)) {
             throw new \RuntimeException('No token specified');
         }
         $service = new $serviceName();

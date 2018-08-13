@@ -1,4 +1,5 @@
 <?php
+
 namespace thewulf7\travelPayouts\services;
 
 
@@ -29,6 +30,9 @@ class DataService extends AbstractService implements iService
         'airlines_alliances' => [],
         'planes'             => [],
         'routes'             => [],
+        //hotels
+        'amenities'          => [],
+        'hotel_cities'       => [],
     ];
 
     /**
@@ -50,8 +54,7 @@ class DataService extends AbstractService implements iService
         $locale = in_array($locale, ['en', 'ru', 'de', 'fr', 'it', 'pl', 'th'], true) ? $locale : 'ru';
         $uri    = "http://www.travelpayouts.com/whereami?locale={$locale}";
 
-        if (!filter_var($ip, FILTER_VALIDATE_IP))
-        {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             throw new \RuntimeException($ip . ' is not a valid ip');
         }
 
@@ -104,8 +107,7 @@ class DataService extends AbstractService implements iService
     {
         $oResult = $this->getCity($code);
 
-        if (!$oResult)
-        {
+        if (!$oResult) {
             $oResult = $this->getAirport($code);
         }
 
@@ -124,8 +126,7 @@ class DataService extends AbstractService implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if ($key === false)
-        {
+        if ($key === false) {
             return null;
         }
 
@@ -156,18 +157,15 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['cities']) === 0)
-        {
+        if (count($this->data['cities']) === 0) {
             $this->data['cities'] = json_decode(file_get_contents($sResult), true);
         }
 
-        return $simpleArray === true ? $this->data['cities'] : array_map(function ($city)
-        {
+        return $simpleArray === true ? $this->data['cities'] : array_map(function ($city) {
             $model = new City();
 
             $model
@@ -183,6 +181,20 @@ class DataService extends AbstractService implements iService
     }
 
     /**
+     * Get Path
+     *
+     * @param $fileName
+     *
+     * @return bool|string
+     */
+    private static function getPath($fileName)
+    {
+        $path = __DIR__ . '/../data/' . $fileName;
+
+        return file_exists($path) ? $path : false;
+    }
+
+    /**
      * @param $code
      *
      * @return null|Country
@@ -194,8 +206,7 @@ class DataService extends AbstractService implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if ($key === false)
-        {
+        if ($key === false) {
             return null;
         }
         $model = new Country();
@@ -223,18 +234,15 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall the package.");
         }
 
-        if (count($this->data['countries']) === 0)
-        {
+        if (count($this->data['countries']) === 0) {
             $this->data['countries'] = json_decode(file_get_contents($sResult), true);
         }
 
-        return $simpleArray === true ? $this->data['countries'] : array_map(function ($country)
-        {
+        return $simpleArray === true ? $this->data['countries'] : array_map(function ($country) {
             $model = new Country();
 
             $model
@@ -261,8 +269,7 @@ class DataService extends AbstractService implements iService
 
         $key = array_search($code, array_column($jsonArray, 'code'), true);
 
-        if ($key === false)
-        {
+        if ($key === false) {
             return null;
         }
 
@@ -293,18 +300,15 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['airports']) === 0)
-        {
+        if (count($this->data['airports']) === 0) {
             $this->data['airports'] = json_decode(file_get_contents($sResult), true);
         }
 
-        return $simpleArray === true ? $this->data['airports'] : array_map(function ($airport)
-        {
+        return $simpleArray === true ? $this->data['airports'] : array_map(function ($airport) {
             $model = new Airport();
 
             $model
@@ -320,20 +324,6 @@ class DataService extends AbstractService implements iService
     }
 
     /**
-     * Get Path
-     *
-     * @param $fileName
-     *
-     * @return bool|string
-     */
-    private static function getPath($fileName)
-    {
-        $path = __DIR__ . '/../data/' . $fileName;
-
-        return file_exists($path) ? $path : false;
-    }
-
-    /**
      * Get airlines
      *
      * @return mixed
@@ -345,13 +335,11 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['airlines']) === 0)
-        {
+        if (count($this->data['airlines']) === 0) {
             $this->data['airlines'] = json_decode(file_get_contents($sResult), true);
         }
 
@@ -370,13 +358,11 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['airlines_alliances']) === 0)
-        {
+        if (count($this->data['airlines_alliances']) === 0) {
             $this->data['airlines_alliances'] = json_decode(file_get_contents($sResult), true);
         }
 
@@ -395,13 +381,11 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['planes']) === 0)
-        {
+        if (count($this->data['planes']) === 0) {
             $this->data['planes'] = json_decode(file_get_contents($sResult), true);
         }
 
@@ -420,13 +404,11 @@ class DataService extends AbstractService implements iService
 
         $sResult = self::getPath($fileName);
 
-        if (!$sResult)
-        {
+        if (!$sResult) {
             throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
         }
 
-        if (count($this->data['routes']) === 0)
-        {
+        if (count($this->data['routes']) === 0) {
             $this->data['routes'] = json_decode(file_get_contents($sResult), true);
         }
 
@@ -453,5 +435,92 @@ class DataService extends AbstractService implements iService
         $this->_client->setApiVersion('data');
 
         return $this;
+    }
+
+    /**
+     * Get country by name
+     *
+     * @param string $name country name
+     *
+     * @return array|null
+     */
+    public function getCountryByName($name)
+    {
+        $country   = null;
+        $countries = $this->getCountries(true);
+        $names     = array_column($countries, 'name');
+        $index     = array_search($name, $names);
+
+        if ($index) {
+            $country = $countries[$index]['name'];
+        }
+
+        return $country;
+    }
+
+    /**
+     * Get hotel amenties
+     *
+     * @return array
+     */
+    public function getHotelAmenities()
+    {
+        $fileName = 'hotels/amenities.json';
+
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult) {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['amenities']) === 0) {
+            $this->data['amenities'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['amenities'];
+    }
+
+    /**
+     * Get array of cities for hotels
+     *
+     * @return array
+     */
+    public function getHotelCities()
+    {
+        $fileName = 'hotels/locations.json';
+
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult) {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['hotel_cities']) === 0) {
+            $this->data['hotel_cities'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['hotel_cities'];
+    }
+
+    /**
+     * Get array of countries for hotels
+     *
+     * @return array
+     */
+    public function getHotelCountries()
+    {
+        $fileName = 'hotels/countries.json';
+
+        $sResult = self::getPath($fileName);
+
+        if (!$sResult) {
+            throw new \RuntimeException("File `{$fileName}` doesn't exists. Reinstall package.");
+        }
+
+        if (count($this->data['hotel_cities']) === 0) {
+            $this->data['hotel_cities'] = json_decode(file_get_contents($sResult), true);
+        }
+
+        return $this->data['hotel_cities'];
     }
 }
