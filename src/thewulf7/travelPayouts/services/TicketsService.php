@@ -434,22 +434,28 @@ class TicketsService extends AbstractService implements iService
 
         $dataService = $this->getDataService();
 
-        return array_map(function ($item) use ($currency, $destination, $origin, $dataService)
-        {
-            $ticket = new Ticket();
-            $ticket
-                ->setValue($item['price'])
-                ->setDestination($dataService->getPlace($destination))
-                ->setOrigin($dataService->getPlace($origin))
-                ->setCurrency($currency)
-                ->setDepartDate(new \DateTime($item['departure_at']))
-                ->setReturnDate(new \DateTime($item['return_at']))
-                ->setExpires(new \DateTime($item['expires_at']))
-                ->setAirline($item['airline'])
-                ->setFlightNumber($item['flight_number']);
+        $arResult = [];
 
-            return $ticket;
-        }, $response['data'][$destination]);
+        foreach ($response['data'] as $dest => $row) {
+            $arResult[] = array_map(function ($item) use ($currency, $dest, $origin, $dataService)
+            {
+                $ticket = new Ticket();
+                $ticket
+                    ->setValue($item['price'])
+                    ->setDestination($dataService->getPlace($dest))
+                    ->setOrigin($dataService->getPlace($origin))
+                    ->setCurrency($currency)
+                    ->setDepartDate(new \DateTime($item['departure_at']))
+                    ->setReturnDate(new \DateTime($item['return_at']))
+                    ->setExpires(new \DateTime($item['expires_at']))
+                    ->setAirline($item['airline'])
+                    ->setFlightNumber($item['flight_number']);
+
+                return $ticket;
+            }, $row);
+        }
+
+        return $arResult;
     }
 
     /**
