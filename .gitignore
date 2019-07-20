@@ -7,3 +7,4 @@ gen
 composer.phar
 vendor/
 composer.lock
+.ptp-sync-folder

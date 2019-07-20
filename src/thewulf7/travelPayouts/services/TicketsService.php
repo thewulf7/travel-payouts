@@ -18,22 +18,22 @@ class TicketsService extends AbstractService implements iService
      *  Class of service
      */
     const ECONOMY_CLASS = 0;
-
+    
     /**
      *  Class of service
      */
     const BUSINESS_CLASS = 1;
-
+    
     /**
      *  Class of service
      */
     const FIRST_CLASS = 2;
-
+    
     /**
      * @var \thewulf7\travelPayouts\components\Client
      */
     private $_client;
-
+    
     /**
      * @return \thewulf7\travelPayouts\components\Client
      */
@@ -41,7 +41,7 @@ class TicketsService extends AbstractService implements iService
     {
         return $this->_client;
     }
-
+    
     /**
      * @param Client $client
      */
@@ -49,7 +49,7 @@ class TicketsService extends AbstractService implements iService
     {
         $this->_client = $client;
     }
-
+    
     /**
      * Flights found by our users in the last 48 hours.
      *
@@ -73,7 +73,7 @@ class TicketsService extends AbstractService implements iService
     public function getLatestPrices($origin = '', $destination = '', $one_way = false, $currency = 'rub', $period_type = 'year', $page = 1, $limit = 30, $show_to_affiliates = true, $sorting = 'price', $trip_class = self::ECONOMY_CLASS, $trip_duration = 0)
     {
         $url = 'prices/latest';
-
+        
         $options = [
             'origin'             => strlen($origin) > 0 ? $origin : null,
             'destination'        => strlen($destination) > 0 ? $destination : null,
@@ -87,33 +87,33 @@ class TicketsService extends AbstractService implements iService
             'trip_class'         => $trip_class,
             'trip_duration'      => $trip_duration > 0 ? $trip_duration : null,
         ];
-
+        
         $response = $this->getClient()->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['value'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setActual($item['actual'])
-                ->setDepartDate(new \DateTime($item['depart_date']))
-                ->setReturnDate(new \DateTime($item['return_date']))
-                ->setFoundAt(new \DateTime($item['found_at']))
-                ->setNumberOfChanges($item['number_of_changes'])
-                ->setDistance($item['distance'])
-                ->setShowToAffiliates($item['show_to_affiliates'])
-                ->setTripClass($item['trip_class']);
-
+            ->setValue($item['value'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setActual($item['actual'])
+            ->setDepartDate(new \DateTime($item['depart_date']))
+            ->setReturnDate(new \DateTime($item['return_date']))
+            ->setFoundAt(new \DateTime($item['found_at']))
+            ->setNumberOfChanges($item['number_of_changes'])
+            ->setDistance($item['distance'])
+            ->setShowToAffiliates($item['show_to_affiliates'])
+            ->setTripClass($item['trip_class']);
+            
             return $ticket;
         }, $response['data']);
-
+        
     }
-
+    
     /**
      * Prices for each day of the month, grouped by number of stops
      *
@@ -130,9 +130,9 @@ class TicketsService extends AbstractService implements iService
     public function getMonthMatrix($origin, $destination, $month, $currency = 'rub', $show_to_affiliates = true)
     {
         $url = 'prices/month-matrix';
-
+        
         $date = new \DateTime($month);
-
+        
         $options = [
             'currency'           => $currency,
             'origin'             => $origin,
@@ -140,31 +140,31 @@ class TicketsService extends AbstractService implements iService
             'show_to_affiliates' => $show_to_affiliates,
             'month'              => $date->format('Y-m-d'),
         ];
-
+        
         $response = $this->getClient()->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['value'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setActual($item['actual'])
-                ->setDepartDate(new \DateTime($item['depart_date']))
-                ->setFoundAt(new \DateTime($item['found_at']))
-                ->setNumberOfChanges($item['number_of_changes'])
-                ->setDistance($item['distance'])
-                ->setShowToAffiliates($item['show_to_affiliates'])
-                ->setTripClass($item['trip_class']);
-
+            ->setValue($item['value'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setActual($item['actual'])
+            ->setDepartDate(new \DateTime($item['depart_date']))
+            ->setFoundAt(new \DateTime($item['found_at']))
+            ->setNumberOfChanges($item['number_of_changes'])
+            ->setDistance($item['distance'])
+            ->setShowToAffiliates($item['show_to_affiliates'])
+            ->setTripClass($item['trip_class']);
+            
             return $ticket;
         }, $response['data']);
     }
-
+    
     /**
      * Returns prices for cities closest to the ones specified.
      *
@@ -182,12 +182,12 @@ class TicketsService extends AbstractService implements iService
     public function getNearestPlacesMatrix($origin = '', $destination = '', $depart_date, $return_date, $currency = 'rub', $show_to_affiliates = true)
     {
         $arResult = [];
-
+        
         $url = 'prices/nearest-places-matrix';
-
+        
         $depart_date = new \DateTime($depart_date);
         $return_date = new \DateTime($return_date);
-
+        
         $options = [
             'currency'           => $currency,
             'origin'             => $origin,
@@ -196,44 +196,44 @@ class TicketsService extends AbstractService implements iService
             'depart_date'        => $depart_date->format('Y-m-d'),
             'return_date'        => $return_date->format('Y-m-d'),
         ];
-
+        
         $response = $this->getClient()->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         $arResult['origins'] = array_map(function ($iata) use ($dataService)
         {
             return $dataService->getAirport($iata);
         }, $response['data']['origins']);
-
+        
         $arResult['destinations'] = array_map(function ($iata) use ($dataService)
         {
             return $dataService->getAirport($iata);
         }, $response['data']['destinations']);
-
+        
         $arResult['prices'] = array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['value'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setActual($item['actual'])
-                ->setDepartDate(new \DateTime($item['depart_date']))
-                ->setReturnDate(new \DateTime($item['return_date']))
-                ->setFoundAt(new \DateTime($item['found_at']))
-                ->setNumberOfChanges($item['number_of_changes'])
-                ->setDistance($item['distance'])
-                ->setShowToAffiliates($item['show_to_affiliates'])
-                ->setTripClass($item['trip_class']);
-
+            ->setValue($item['value'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setActual($item['actual'])
+            ->setDepartDate(new \DateTime($item['depart_date']))
+            ->setReturnDate(new \DateTime($item['return_date']))
+            ->setFoundAt(new \DateTime($item['found_at']))
+            ->setNumberOfChanges($item['number_of_changes'])
+            ->setDistance($item['distance'])
+            ->setShowToAffiliates($item['show_to_affiliates'])
+            ->setTripClass($item['trip_class']);
+            
             return $ticket;
         }, $response['data']['prices']);
-
+        
         return $arResult;
     }
-
+    
     /**
      * Price calendar. Returns prices for dates closest to the ones specified.
      *
@@ -251,10 +251,10 @@ class TicketsService extends AbstractService implements iService
     public function getWeekMatrix($origin, $destination, $depart_date, $return_date, $currency = 'rub', $show_to_affiliates = true)
     {
         $url = 'prices/week-matrix';
-
+        
         $depart_date = new \DateTime($depart_date);
         $return_date = new \DateTime($return_date);
-
+        
         $options = [
             'currency'           => $currency,
             'origin'             => $origin,
@@ -263,33 +263,33 @@ class TicketsService extends AbstractService implements iService
             'depart_date'        => $depart_date->format('Y-m-d'),
             'return_date'        => $return_date->format('Y-m-d'),
         ];
-
+        
         $response = $this->getClient()->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['value'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setActual($item['actual'])
-                ->setDepartDate(new \DateTime($item['depart_date']))
-                ->setReturnDate(new \DateTime($item['return_date']))
-                ->setFoundAt(new \DateTime($item['found_at']))
-                ->setNumberOfChanges($item['number_of_changes'])
-                ->setDistance($item['distance'])
-                ->setShowToAffiliates($item['show_to_affiliates'])
-                ->setTripClass($item['trip_class']);
-
+            ->setValue($item['value'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setActual($item['actual'])
+            ->setDepartDate(new \DateTime($item['depart_date']))
+            ->setReturnDate(new \DateTime($item['return_date']))
+            ->setFoundAt(new \DateTime($item['found_at']))
+            ->setNumberOfChanges($item['number_of_changes'])
+            ->setDistance($item['distance'])
+            ->setShowToAffiliates($item['show_to_affiliates'])
+            ->setTripClass($item['trip_class']);
+            
             return $ticket;
         }, $response['data']);
-
+        
     }
-
+    
     /**
      * The best offers on holidays from popular cities
      *
@@ -299,20 +299,20 @@ class TicketsService extends AbstractService implements iService
     public function getHolidaysByRoute()
     {
         $arResult = [];
-
+        
         $url = 'prices/holidays-by-routes';
-
+        
         $response = $this->getClient()->execute($url, []);
-
+        
         $arResult['title'] = $response['data']['title'];
-
+        
         $arResult['dates'] = array_map(function ($item)
         {
             return new \DateTime($item);
         }, $response['data']['dates']);
-
+        
         $dataService = $this->getDataService();
-
+        
         $arResult['origins'] = array_map(function ($originArray) use ($dataService)
         {
             $place = $dataService->getPlace($originArray['iata']);
@@ -322,27 +322,27 @@ class TicketsService extends AbstractService implements iService
                 {
                     $ticket = new Ticket();
                     $ticket
-                        ->setValue($item['price'])
-                        ->setDestination($dataService->getPlace($item['destination']))
-                        ->setOrigin($place)
-                        ->setCurrency('rub')
-                        ->setActual(isset($item['actual']) ? $item['actual'] : true)
-                        ->setDepartDate(new \DateTime($item['depart_date']))
-                        ->setReturnDate(new \DateTime($item['return_date']))
-                        ->setFoundAt(new \DateTime(isset($item['found_at']) ? $item['found_at'] : ''))
-                        ->setNumberOfChanges(isset($item['number_of_changes']) ? $item['number_of_changes'] : 0)
-                        ->setDistance(isset($item['distance']) ? $item['distance'] : false)
-                        ->setShowToAffiliates(isset($item['show_to_affiliates']) ? $item['show_to_affiliates'] : false)
-                        ->setTripClass(isset($item['trip_class']) ? $item['trip_class'] : false);
-
+                    ->setValue($item['price'])
+                    ->setDestination($dataService->getPlace($item['destination']))
+                    ->setOrigin($place)
+                    ->setCurrency('rub')
+                    ->setActual(isset($item['actual']) ? $item['actual'] : true)
+                    ->setDepartDate(new \DateTime($item['depart_date']))
+                    ->setReturnDate(new \DateTime($item['return_date']))
+                    ->setFoundAt(new \DateTime(isset($item['found_at']) ? $item['found_at'] : ''))
+                    ->setNumberOfChanges(isset($item['number_of_changes']) ? $item['number_of_changes'] : 0)
+                    ->setDistance(isset($item['distance']) ? $item['distance'] : false)
+                    ->setShowToAffiliates(isset($item['show_to_affiliates']) ? $item['show_to_affiliates'] : false)
+                    ->setTripClass(isset($item['trip_class']) ? $item['trip_class'] : false);
+                    
                     return $ticket;
-                }, $originArray['prices']),
+            }, $originArray['prices']),
             ];
         }, $response['data']['origins']);
-
+        
         return $arResult;
     }
-
+    
     /**
      * Returns the cheapest non-stop tickets, as well as tickets with 1 or 2 stops,
      * for the selected route for each day of the selected month.
@@ -362,10 +362,10 @@ class TicketsService extends AbstractService implements iService
     public function getCalendar($origin, $destination, $depart_date, $return_date = '', $currency = 'rub', $calendar_type = 'departure_date', $trip_duration = 0)
     {
         $url = 'prices/calendar';
-
+        
         $depart_date = new \DateTime($depart_date);
         $return_date = strlen($return_date) > 0 ? new \DateTime($return_date) : false;
-
+        
         $options = [
             'currency'      => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'        => $origin,
@@ -375,30 +375,30 @@ class TicketsService extends AbstractService implements iService
             'trip_duration' => $trip_duration > 0 ? $trip_duration : null,
             'calendar_type' => in_array($calendar_type, ['departure_date', 'return_date'], true) ? $calendar_type : null,
         ];
-
+        
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['price'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setDepartDate(new \DateTime($item['departure_at']))
-                ->setReturnDate(new \DateTime($item['return_at']))
-                ->setExpires(new \DateTime($item['expires_at']))
-                ->setNumberOfChanges($item['transfers'])
-                ->setAirline($item['airline'])
-                ->setFlightNumber($item['flight_number']);
-
+            ->setValue($item['price'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setDepartDate(new \DateTime($item['departure_at']))
+            ->setReturnDate(new \DateTime($item['return_at']))
+            ->setExpires(new \DateTime($item['expires_at']))
+            ->setNumberOfChanges($item['transfers'])
+            ->setAirline($item['airline'])
+            ->setFlightNumber($item['flight_number']);
+            
             return $ticket;
         }, $response['data']);
     }
-
+    
     /**
      * Returns the cheapest non-stop tickets, as well as tickets with 1 or 2 stops,
      * for the selected route with filters by departure and return date.
@@ -415,13 +415,13 @@ class TicketsService extends AbstractService implements iService
     public function getCheap($origin, $destination, $depart_date = '', $return_date = '', $currency = 'rub')
     {
         $url = 'prices/cheap';
-
+        
         $depart = new \DateTime($depart_date);
         $return = new \DateTime($return_date);
-
+        
         $depart = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $depart->format('Y-m-d') : $depart->format('Y-m');
         $return = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $return->format('Y-m-d') : $return->format('Y-m');
-
+        
         $options = [
             'currency'    => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'      => $origin,
@@ -429,29 +429,43 @@ class TicketsService extends AbstractService implements iService
             'depart_date' => $depart_date !== '' ? $depart : null,
             'return_date' => $return_date !== '' ? $return : null,
         ];
-
-        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
-        $dataService = $this->getDataService();
-
-        return array_map(function ($item) use ($currency, $destination, $origin, $dataService)
-        {
-            $ticket = new Ticket();
-            $ticket
-                ->setValue($item['price'])
-                ->setDestination($dataService->getPlace($destination))
-                ->setOrigin($dataService->getPlace($origin))
-                ->setCurrency($currency)
-                ->setDepartDate(new \DateTime($item['departure_at']))
-                ->setReturnDate(new \DateTime($item['return_at']))
-                ->setExpires(new \DateTime($item['expires_at']))
-                ->setAirline($item['airline'])
-                ->setFlightNumber($item['flight_number']);
-
-            return $ticket;
-        }, $response['data'][$destination]);
+        
+        $result = array();
+        $options['page'] = 1;
+        
+        do {
+            $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+            
+            $dataService = $this->getDataService();
+            $resultRequest = array();
+            foreach($response['data'] as $destinationKey => $destinationTicket){
+                $resultRequest = array_merge($resultRequest,
+                    array_map(function ($item) use ($currency, $destinationKey, $origin, $dataService)
+                    {
+                        $ticket = new Ticket();
+                        $ticket
+                        ->setValue($item['price'])
+                        ->setDestination($dataService->getPlace($destinationKey))
+                        ->setOrigin($dataService->getPlace($origin))
+                        ->setCurrency($currency)
+                        ->setDepartDate(new \DateTime($item['departure_at']))
+                        ->setReturnDate(new \DateTime($item['return_at']))
+                        ->setExpires(new \DateTime($item['expires_at']))
+                        ->setAirline($item['airline'])
+                        ->setFlightNumber($item['flight_number']);
+                        return $ticket;
+                }, $destinationTicket)
+                    );
+            }
+            $options['page']++;
+            $result = array_merge($result, $resultRequest);
+        }
+        while (count($resultRequest) == 100);
+        
+        return $result;
+        
     }
-
+    
     /**
      * Non-stop tickets. Returns the cheapest non-stop tickets for the selected route with filters by departure and
      * return date.
@@ -468,13 +482,13 @@ class TicketsService extends AbstractService implements iService
     public function getDirect($origin, $destination, $depart_date = '', $return_date = '', $currency = 'rub')
     {
         $url = 'prices/direct';
-
+        
         $depart = new \DateTime($depart_date);
         $return = new \DateTime($return_date);
-
+        
         $depart = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $depart->format('Y-m-d') : $depart->format('Y-m');
         $return = preg_match('/(\d{4}\-\d{2}\-\d{2})/', $depart_date) ? $return->format('Y-m-d') : $return->format('Y-m');
-
+        
         $options = [
             'currency'    => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'      => $origin,
@@ -482,34 +496,43 @@ class TicketsService extends AbstractService implements iService
             'depart_date' => $depart_date !== '' ? $depart : null,
             'return_date' => $return_date !== '' ? $return : null,
         ];
-
-        $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
-        //TODO: replace with city_code
-        $item = array_shift($response['data']);
-
-        if(count($item) === 0 && $response['success'])
-        {
-            return null;
+        
+        $result = array();
+        $options['page'] = 1;
+        
+        do {
+            $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
+            
+            $dataService = $this->getDataService();
+            $resultRequest = array();
+            foreach($response['data'] as $destinationKey => $destinationTicket){
+                $resultRequest = array_merge($resultRequest,
+                    array_map(function ($item) use ($currency, $destinationKey, $origin, $dataService)
+                    {
+                        $ticket = new Ticket();
+                        $ticket
+                        ->setValue($item['price'])
+                        ->setDestination($dataService->getPlace($destinationKey))
+                        ->setOrigin($dataService->getPlace($origin))
+                        ->setCurrency($currency)
+                        ->setDepartDate(new \DateTime($item['departure_at']))
+                        ->setReturnDate(new \DateTime($item['return_at']))
+                        ->setExpires(new \DateTime($item['expires_at']))
+                        ->setAirline($item['airline'])
+                        ->setFlightNumber($item['flight_number']);
+                        return $ticket;
+                }, $destinationTicket)
+                    );
+            }
+            $options['page']++;
+            $result = array_merge($result, $resultRequest);
         }
+        while (count($resultRequest) == 100);
+        
+        return $result;
 
-        $dataService = $this->getDataService();
-
-        $ticket = new Ticket();
-        $ticket
-            ->setValue($item[0]['price'])
-            ->setDestination($dataService->getPlace($destination))
-            ->setOrigin($dataService->getPlace($origin))
-            ->setCurrency($currency)
-            ->setDepartDate(new \DateTime($item[0]['departure_at']))
-            ->setReturnDate(new \DateTime($item[0]['return_at']))
-            ->setExpires(new \DateTime($item[0]['expires_at']))
-            ->setAirline($item[0]['airline'])
-            ->setFlightNumber($item[0]['flight_number']);
-
-        return $ticket;
     }
-
+    
     /**
      * Cheapest tickets grouped by month
      *
@@ -523,36 +546,36 @@ class TicketsService extends AbstractService implements iService
     public function getMonthly($origin, $destination, $currency = 'rub')
     {
         $url = 'prices/monthly';
-
+        
         $options = [
             'currency'    => in_array($currency, ['usd', 'eur', 'rub'], true) ? $currency : 'rub',
             'origin'      => $origin,
             'destination' => $destination,
         ];
-
+        
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($currency, $dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['price'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency($currency)
-                ->setDepartDate(new \DateTime($item['departure_at']))
-                ->setReturnDate(new \DateTime($item['return_at']))
-                ->setExpires(new \DateTime($item['expires_at']))
-                ->setNumberOfChanges($item['transfers'])
-                ->setAirline($item['airline'])
-                ->setFlightNumber($item['flight_number']);
-
+            ->setValue($item['price'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency($currency)
+            ->setDepartDate(new \DateTime($item['departure_at']))
+            ->setReturnDate(new \DateTime($item['return_at']))
+            ->setExpires(new \DateTime($item['expires_at']))
+            ->setNumberOfChanges($item['transfers'])
+            ->setAirline($item['airline'])
+            ->setFlightNumber($item['flight_number']);
+            
             return $ticket;
         }, $response['data']);
     }
-
+    
     /**
      * Returns most popular routes for selected origin
      *
@@ -564,34 +587,34 @@ class TicketsService extends AbstractService implements iService
     public function getPopularRoutesFromCity($origin)
     {
         $url = 'city-directions';
-
+        
         $options = [
             'origin' => $origin,
         ];
-
+        
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         return array_map(function ($item) use ($dataService)
         {
             $ticket = new Ticket();
             $ticket
-                ->setValue($item['price'])
-                ->setDestination($dataService->getPlace($item['destination']))
-                ->setOrigin($dataService->getPlace($item['origin']))
-                ->setCurrency('rub')
-                ->setDepartDate(new \DateTime($item['departure_at']))
-                ->setReturnDate(new \DateTime($item['return_at']))
-                ->setExpires(new \DateTime($item['expires_at']))
-                ->setNumberOfChanges($item['transfers'])
-                ->setAirline($item['airline'])
-                ->setFlightNumber($item['flight_number']);
-
+            ->setValue($item['price'])
+            ->setDestination($dataService->getPlace($item['destination']))
+            ->setOrigin($dataService->getPlace($item['origin']))
+            ->setCurrency('rub')
+            ->setDepartDate(new \DateTime($item['departure_at']))
+            ->setReturnDate(new \DateTime($item['return_at']))
+            ->setExpires(new \DateTime($item['expires_at']))
+            ->setNumberOfChanges($item['transfers'])
+            ->setAirline($item['airline'])
+            ->setFlightNumber($item['flight_number']);
+            
             return $ticket;
         }, $response['data']);
     }
-
+    
     /**
      * Returns the routes that an airline flies and sorts them by popularity.
      *
@@ -605,29 +628,29 @@ class TicketsService extends AbstractService implements iService
     {
         $arResult = [];
         $url      = 'airline-directions';
-
+        
         $options = [
             'airline_code' => $airline_code,
             'limit'        => $limit,
         ];
-
+        
         $response = $this->getClient()->setApiVersion('v1')->execute($url, $options);
-
+        
         $dataService = $this->getDataService();
-
+        
         foreach ($response['data'] as $direction => $rating)
         {
-
+            
             list($origin, $destination) = explode('-', $direction);
-
+            
             $arResult[] = [
                 'origin'      => $dataService->getPlace($origin),
                 'destination' => $dataService->getPlace($destination),
                 'rating'      => $rating,
             ];
         }
-
+        
         return $arResult;
-
+        
     }
 }
